@@ -128,8 +128,28 @@
   .station-pin div{transition:transform .12s ease,box-shadow .12s ease}
   .station-pin:hover div{transform:scale(1.45);box-shadow:0 2px 8px rgba(0,0,0,.5)!important}
   .leaflet-popup-content{font-size:12px}
-  @media (max-width:1100px){.right{width:320px}.sidebar{width:240px}}
-  @media (max-width:880px){#app{flex-direction:column;height:auto}.sidebar,.right{width:100%}.center{height:60vh}.mapwrap{min-height:340px}}
+  @media (max-width:1100px) and (min-width:821px){.right{width:320px}.sidebar{width:240px}}
+  /* ----- mobile selector (hidden on desktop) ----- */
+  .msel{display:none;align-items:center;justify-content:space-between;gap:8px;margin:2px 12px 10px;padding:11px 13px;border:1px solid var(--line2);border-radius:12px;background:var(--soft);font-weight:700;font-size:14px;color:var(--txt);cursor:pointer}
+  .msel svg{color:var(--muted);transition:transform .2s}
+  .sidebar.list-open .msel svg{transform:rotate(180deg)}
+  @media (max-width:820px){
+    #app{flex-direction:column;height:auto;min-height:100dvh;gap:8px;padding:8px}
+    .sidebar,.center,.right{width:100%}
+    /* défaut : liste complète (80vh) + carte (80vh) dessous */
+    .sidebar{height:80vh;flex:0 0 auto}
+    .center{height:80vh;flex:0 0 auto}
+    .right{display:none}
+    /* ville sélectionnée */
+    #app.has-city .sidebar{height:auto;flex:0 0 auto}
+    #app.has-city .sidehead{display:none}
+    #app.has-city .msel{display:flex}
+    #app.has-city .citylist{display:none}
+    #app.has-city .sidebar.list-open .citylist{display:block;max-height:55vh;overflow:auto}
+    #app.has-city .center{height:30vh;flex:0 0 auto}
+    #app.has-city .right{display:flex;flex:1 1 auto;min-height:55vh}
+    #app.has-city .overviewbtn{margin:2px 12px 8px}
+  }
 </style>
 </head>
 <body>
@@ -137,6 +157,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar card">
     <div class="brand"><div class="logo">12</div><span class="nm">Exit</span><span class="beta">beta</span></div>
+    <div class="msel" id="msel"><span id="mselName">Choisir une ville</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
     <button class="overviewbtn" id="overviewBtn">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
       Vue d'ensemble
@@ -653,8 +674,11 @@ async function selectCity(c){
   wireSeloger();
   loadPhotos(c);
   document.getElementById('right').classList.add('show');
+  document.getElementById('app').classList.add('has-city');
+  document.querySelector('.sidebar').classList.remove('list-open');
+  const _mn=document.getElementById('mselName');if(_mn)_mn.textContent=c.name;
   if(!mapOk){return;}
-  setTimeout(()=>map.invalidateSize(),60);
+  setTimeout(()=>map.invalidateSize(),140);
   cityMarkers.forEach(m=>map.removeLayer(m));
   document.getElementById('loading').style.display='block';
   map.flyToBounds(c.bnum,{duration:.7});
@@ -666,6 +690,8 @@ async function selectCity(c){
 function showOverview(){
   current=null;activeQ=null;
   document.getElementById('right').classList.remove('show');
+  document.getElementById('app').classList.remove('has-city');
+  document.querySelector('.sidebar').classList.remove('list-open');
   document.querySelectorAll('.crow').forEach(x=>x.classList.remove('on'));
   document.getElementById('cName').textContent='Vue d\'ensemble';
   document.getElementById('cStatus').innerHTML='<span class="led"></span>'+cities.length+' villes';
@@ -679,6 +705,7 @@ function showOverview(){
 document.getElementById('zoomOut').onclick=showOverview;
 document.getElementById('rclose').onclick=showOverview;
 document.getElementById('overviewBtn').onclick=showOverview;
+document.getElementById('msel').onclick=()=>{const sb=document.querySelector('.sidebar');sb.classList.toggle('list-open');};
 document.getElementById('dlbtn').onclick=()=>{if(current)window.open('rapports/synthese-'+slugify(current.name)+'.pdf','_blank');};
 
 // city markers (overview)
