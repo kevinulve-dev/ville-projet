@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Déménagement — 22 villes Sud/Ouest Paris</name>
+<Style id="grn"><IconStyle><color>ff4BAE1F</color><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon></IconStyle></Style>
+<Style id="ltgrn"><IconStyle><color>ff57D97E</color><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon></IconStyle></Style>
+<Style id="ylw"><IconStyle><color>ff0FC4F1</color><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon></IconStyle></Style>
+<Style id="orange"><IconStyle><color>ff227EE6</color><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon></IconStyle></Style>
+<Style id="red"><IconStyle><color>ff3C4CE7</color><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon></IconStyle></Style>
+<Placemark><name>1. Vincennes — 8.43</name><description>#1 · Score 8.43/10 (94 · Est)
+🚆 RER A ~10 min Châtelet + M1 (automatique, très fiable)
+🎓 Collège Berlioz 96% brevet / 99% mentions · Lycée Berlioz 98% bac / 73% mentions.
+🏠 Achat ~9 200–9 450 €/m² · Loyer ~28–29 €/m²
+🌳 Bois de Vincennes (995 ha) · Dôme aquatique.
+📝 Chic familial, taxe foncière la plus basse. Le plus cher avec St-Mandé.</description><styleUrl>#grn</styleUrl><Point><coordinates>2.437,48.8479,0</coordinates></Point></Placemark>
+<Placemark><name>2. Saint-Maur-des-Fossés — 8.35</name><description>#2 · Score 8.35/10 (94 · Est)
+🚆 RER A ~15–20 min Châtelet (4 gares).
+🎓 Collèges Le Parc 96% / Pissarro 95% / Rabelais 94% · Lycées d'Arsonval &amp; Mansart 94% bac. Privé Jeanne d'Arc 99%.
+🏠 Achat ~5 500–5 900 €/m² · Loyer ~20–22 €/m²
+🌳 Presqu'île dans la Marne, très verte · CRR réputé.
+📝 Résidentiel aisé, beaucoup de maisons. Meilleur rapport écoles/loyer.</description><styleUrl>#grn</styleUrl><Point><coordinates>2.4932,48.794,0</coordinates></Point></Placemark>
+<Placemark><name>3. Sceaux — 8.26</name><description>#3 · Score 8.26/10 (92 · Sud)
+🚆 RER B ~15 min Châtelet (branche sud, ponctualité irrégulière).
+🎓 Collèges Marie Curie &amp; Lakanal 92% · Lycée Lakanal 99% bac / 83% mentions (CPGE). Privé Ste-Jeanne d'Arc.
+🏠 Achat ~6 100–6 300 €/m² · Loyer ~23 €/m²
+🌳 Parc de Sceaux (360 ha) · conservatoire, piscine.
+📝 La meilleure carte scolaire du 92 Sud. Cher + fiscalité élevée.</description><styleUrl>#grn</styleUrl><Point><coordinates>2.29,48.7783,0</coordinates></Point></Placemark>
+<Placemark><name>4. Bourg-la-Reine — 7.90</name><description>#4 · Score 7.90/10 (92 · Sud)
+🚆 RER B ~15 min Châtelet (tronc commun, mieux desservi que Sceaux).
+🎓 Collège Évariste Galois très réputé (47% TB) · Lycées rattachés à Sceaux (Lakanal 99%).
+🏠 Achat ~5 350 €/m² · Loyer ~23 €/m²
+🌳 Squares &amp; jardins · conservatoire, médiathèque.
+📝 Meilleur compromis écoles/prix/RER du 92 Sud. Calme et familial.</description><styleUrl>#ltgrn</styleUrl><Point><coordinates>2.315,48.78,0</coordinates></Point></Placemark>
+<Placemark><name>5. Saint-Cloud — 7.87</name><description>#5 · Score 7.87/10 (92 · Ouest)
+🚆 Transilien L ~15–20 min Saint-Lazare / ~8 min La Défense + T2.
+🎓 Collège Verhaeren 90% · Lycée Alexandre-Dumas 98% bac / 67% mentions. Privé présent.
+🏠 Achat ~6 450–6 550 €/m² · Loyer ~26 €/m²
+🌳 Domaine national de Saint-Cloud (460 ha), 166 m²/hab.
+📝 Cossu, familial. Taxe foncière la plus basse (21,1%). Le plus cher du groupe ouest.</description><styleUrl>#ltgrn</styleUrl><Point><coordinates>2.219,48.846,0</coordinates></Point></Placemark>
+<Placemark><name>6. Antony — 7.87</name><description>#6 · Score 7.87/10 (92 · Sud)
+🚆 RER B direct ~22 min Châtelet + T10 + Orlyval.
+🎓 Collège Descartes 94,7% / 41% TB, La Fontaine 89% · Lycée Descartes 97% bac + CPGE. Privé Sainte-Marie.
+🏠 Achat ~5 015–5 150 €/m² · Loyer ~22–24 €/m²
+🌳 Parc de Sceaux (limite nord), coulée verte.
+📝 Familial aisé, écoles premium, plus abordable que le 92 Ouest.</description><styleUrl>#ltgrn</styleUrl><Point><coordinates>2.298,48.753,0</coordinates></Point></Placemark>
+<Placemark><name>7. Vanves — 7.80</name><description>#7 · Score 7.80/10 (92 · Ouest)
+🚆 Transilien N ~5 min Montparnasse + M13.
+🎓 Collège Michelet 95% · Lycée Michelet 97% bac / 74% mentions (grand lycée historique).
+🏠 Achat ~6 610 €/m² · Loyer ~25–26 €/m²
+🌳 Parc Frédéric Pic (5 ha) · piscine, conservatoire.
+📝 Pôle Michelet = atout majeur, le moins cher de l'Ouest. Taxe foncière élevée.</description><styleUrl>#ltgrn</styleUrl><Point><coordinates>2.29,48.8233,0</coordinates></Point></Placemark>
+<Placemark><name>8. Saint-Mandé — 7.75</name><description>#8 · Score 7.75/10 (94 · Est)
+🚆 M1 ~14 min Châtelet (automatique) + RER A via Vincennes.
+🎓 Collège Offenbach + Decroly (pédagogie active) · Lycée Berlioz (Vincennes) 98%.
+🏠 Achat ~9 600–10 500 €/m² · Loyer ~30 €/m²
+🌳 Bois de Vincennes + lac de Saint-Mandé.
+📝 Bourgeois, parmi les plus sûrs du 94. Le plus cher. Peu de maisons.</description><styleUrl>#ltgrn</styleUrl><Point><coordinates>2.4188,48.846,0</coordinates></Point></Placemark>
+<Placemark><name>9. Issy-les-Moulineaux — 7.73</name><description>#9 · Score 7.73/10 (92 · Ouest)
+🚆 M12 ~25–30 min + T2 + RER C · Ligne 15 Sud fin 2026.
+🎓 Collège de la Paix 96% / 52% TB · Lycée Ionesco 96% bac / 67% mentions.
+🏠 Achat ~7 690 €/m² · Loyer ~27 €/m²
+🌳 Île Saint-Germain (21 ha) · 2 piscines, médiathèque.
+📝 Dynamique, vie culturelle forte. Ligne 15 va valoriser la ville.</description><styleUrl>#ltgrn</styleUrl><Point><coordinates>2.27,48.8243,0</coordinates></Point></Placemark>
+<Placemark><name>10. Meudon — 7.62</name><description>#10 · Score 7.62/10 (92 · Sud-Ouest)
+🚆 Transilien N ~10 min Montparnasse + RER C + T2.
+🎓 Collège Rabelais 82% (Béjart 72% plus faible) · Lycée Rabelais 97% bac / 79% mentions. Privé Notre-Dame.
+🏠 Achat ~6 000 €/m² · Loyer ~25–26 €/m²
+🌳 Forêt de Meudon (~1 100 ha, 7 étangs), terrasse de l'Observatoire.
+📝 Transport imbattable + forêt. Taxe basse. Quartiers hétérogènes : cibler Bellevue/centre.</description><styleUrl>#ylw</styleUrl><Point><coordinates>2.235,48.8137,0</coordinates></Point></Placemark>
+<Placemark><name>11. Clamart — 7.52</name><description>#11 · Score 7.52/10 (92 · Sud-Ouest)
+🚆 Transilien N ~8 min Montparnasse + T6 + M13.
+🎓 Collèges Maison-Blanche 93% &amp; Alain-Fournier 91% · Lycée Jacques-Monod 99% bac / 79% mentions. Éviter Trivaux/Petit-Clamart (QPV).
+🏠 Achat ~5 800 €/m² · Loyer ~24 €/m²
+🌳 Forêt de Meudon (Clamart-bois) · conservatoire, piscine.
+📝 Contrastée : Clamart-bois prisé vs Clamart-bas populaire. Bon rapport qualité/prix si bon quartier.</description><styleUrl>#ylw</styleUrl><Point><coordinates>2.266,48.801,0</coordinates></Point></Placemark>
+<Placemark><name>12. Sèvres — 7.45</name><description>#12 · Score 7.45/10 (92 · Sud-Ouest)
+🚆 Transilien N ~12–15 min Montparnasse + T2 La Défense.
+🎓 Collège de Sèvres 81% · Lycée Jean-Pierre Vernant 96% bac / 67% mentions (référence, dessert aussi Chaville &amp; Ville-d'Avray).
+🏠 Achat ~5 970 €/m² · Loyer ~24 €/m²
+🌳 Bords de Seine (île de Monsieur), proximité St-Cloud.
+📝 Résidentiel patrimonial, marché tendu. Le lycée Vernant est l'atout.</description><styleUrl>#ylw</styleUrl><Point><coordinates>2.211,48.8235,0</coordinates></Point></Placemark>
+<Placemark><name>13. Ville-d'Avray — 7.39</name><description>#13 · Score 7.39/10 (92 · Sud-Ouest)
+🚆 Transilien L ~24 min Saint-Lazare (pas de tram/RER, mono-ligne).
+🎓 Collège La Fontaine du Roy 94% / 41% TB · Lycée Vernant (Sèvres) 96%. Enchaînement excellent.
+🏠 Achat ~5 600 €/m² · Loyer ~21 €/m²
+🌳 Étangs de Corot, forêt de Fausses-Reposes — le plus 'nature'.
+📝 Résidentiel aisé 'village', très calme. Offre rare, transports plus lents.</description><styleUrl>#ylw</styleUrl><Point><coordinates>2.188,48.824,0</coordinates></Point></Placemark>
+<Placemark><name>14. Montrouge — 7.27</name><description>#14 · Score 7.27/10 (92 · Ouest)
+🚆 M4 ~20 min Châtelet (~10 min Montparnasse).
+🎓 Collège Doisneau 95,7% / 46% TB · Genevoix plus moyen · Lycée Genevoix 94% bac. Carte hétérogène.
+🏠 Achat ~7 100–7 150 €/m² · Loyer ~27 €/m²
+🌳 Parcs Schuman &amp; Metton · piscine, médiathèque.
+📝 Aux portes de Paris (14e) pour moins cher. Excellent si secteur Doisneau.</description><styleUrl>#ylw</styleUrl><Point><coordinates>2.3219,48.8172,0</coordinates></Point></Placemark>
+<Placemark><name>15. Chaville — 7.13</name><description>#15 · Score 7.13/10 (92 · Sud-Ouest)
+🚆 Double : Transilien N ~12 min Montparnasse + L/U ~20–29 min Saint-Lazare/La Défense.
+🎓 Collège Jean Moulin 79% (IPS 131) · Pas de lycée sur place. Privé St-Thomas de Villeneuve.
+🏠 Achat ~6 000 €/m² · Loyer ~22 €/m²
+🌳 Entre forêts de Meudon et Fausses-Reposes · étang d'Ursine.
+📝 Familial verdoyant, flexibilité rare (2 directions). Pas de lycée public sur la commune.</description><styleUrl>#ylw</styleUrl><Point><coordinates>2.188,48.809,0</coordinates></Point></Placemark>
+<Placemark><name>16. Boulogne-Billancourt — 6.93</name><description>#16 · Score 6.93/10 (92 · Ouest)
+🚆 M9 + M10 + T2 (5 stations) · Ligne 15 Sud à venir.
+🎓 Public au collège moins homogène (J. Auriol 69%). Excellence via privé sélectif (St-Joseph, Notre-Dame).
+🏠 Achat ~8 220 €/m² · Loyer ~29 €/m²
+🌳 ~33 ha (parc Rothschild, Île Seguin).
+📝 Plus grande ville du 92, chic, la plus chère. Carte scolaire publique en retrait.</description><styleUrl>#ylw</styleUrl><Point><coordinates>2.24,48.835,0</coordinates></Point></Placemark>
+<Placemark><name>17. Maisons-Alfort — 6.89</name><description>#17 · Score 6.89/10 (94 · Sud-Est)
+🚆 M8 (lent ~30–40 min) + RER D · GPE L15 à venir.
+🎓 Collèges Nicolas de Staël 93% &amp; Herriot 92% MAIS Jules Ferry en REP (53%) — secteur à vérifier. Lycée Delacroix 95%.
+🏠 Achat ~5 600–5 900 €/m² · Loyer ~23 €/m²
+🌳 75 ha verts, 4 km de promenade sur la Marne.
+📝 Familial et accessible. Carte scolaire hétérogène (éviter REP).</description><styleUrl>#ylw</styleUrl><Point><coordinates>2.4374,48.8049,0</coordinates></Point></Placemark>
+<Placemark><name>18. Garches — 6.89</name><description>#18 · Score 6.89/10 (92 · Ouest)
+🚆 Transilien L ~12 min La Défense / ~25–30 min Saint-Lazare (fréquence ~30 min).
+🎓 Collège Henri Bergson (unique, 78% mentions) · Lycée Alexandre-Dumas (Saint-Cloud) 98%.
+🏠 Achat ~6 100–6 250 €/m² · Loyer ~25 €/m²
+🌳 148 ha verts, bois de Saint-Cucufa, Haras.
+📝 Très résidentiel cossu, calme. Même lycée que Saint-Cloud. Transports = point faible.</description><styleUrl>#ylw</styleUrl><Point><coordinates>2.187,48.847,0</coordinates></Point></Placemark>
+<Placemark><name>19. Châtillon — 6.86</name><description>#19 · Score 6.86/10 (92 · Sud-Ouest)
+🚆 M13 terminus Châtillon-Montrouge + T6 (haute fréquence).
+🎓 Collèges George-Sand 85% &amp; Paul-Éluard 79% (modestes) · Lycée Jacques-Monod (Clamart) 99%.
+🏠 Achat ~5 600–5 750 €/m² · Loyer ~23 €/m²
+🌳 Coulée verte (27 ha), parc Henri-Matisse.
+📝 Bien connectée et abordable, en gentrification. Collèges un cran en dessous · taxe la plus élevée.</description><styleUrl>#ylw</styleUrl><Point><coordinates>2.29,48.804,0</coordinates></Point></Placemark>
+<Placemark><name>20. Le Plessis-Robinson — 6.62</name><description>#20 · Score 6.62/10 (92 · Sud)
+🚆 Tram T6/T10 + RER B (Robinson, indirect) ~25 min.
+🎓 Collège Romain Rolland 81% · Lycée Montesquieu 88% bac / 45% mentions.
+🏠 Achat ~5 640 €/m² · Loyer ~22 €/m²
+🌳 Très verdoyant, étang Colbert · médiathèque.
+📝 Centre-ville reconstruit, bien géré. Bon rapport qualité/prix mais transports moins directs.</description><styleUrl>#orange</styleUrl><Point><coordinates>2.264,48.781,0</coordinates></Point></Placemark>
+<Placemark><name>21. Fontenay-aux-Roses — 6.47</name><description>#21 · Score 6.47/10 (92 · Sud)
+🚆 RER B ~18–20 min Châtelet (branche Robinson, fragile, monomodal).
+🎓 Collège Les Ormeaux 67% brevet (le plus faible) · Lycée Montesquieu 88%.
+🏠 Achat ~4 550–4 950 €/m² · Loyer ~21–22 €/m²
+🌳 Coulée verte du Sud parisien (29 ha).
+📝 La plus abordable. Cadre vert, mais carte scolaire la plus en retrait.</description><styleUrl>#orange</styleUrl><Point><coordinates>2.292,48.79,0</coordinates></Point></Placemark>
+<Placemark><name>22. Châtenay-Malabry — 6.41</name><description>#22 · Score 6.41/10 (92 · Sud)
+🚆 T10 + RER B (Croix-de-Berny), pas de RER sur place — ~40–50 min.
+🎓 2 collèges en éducation prioritaire (~78%) — secteur à vérifier · Lycée Mounier 94% bac / 49% mentions.
+🏠 Achat ~4 660–4 790 €/m² · Loyer ~21–22 €/m²
+🌳 Domaine de la Vallée-aux-Loups (60 ha) + Parc de Sceaux · écoquartier LaVallée.
+📝 La plus abordable, cadre vert exceptionnel. Risque carte scolaire (REP) + accès Paris moins direct.</description><styleUrl>#orange</styleUrl><Point><coordinates>2.265,48.765,0</coordinates></Point></Placemark>
+</Document></kml>
