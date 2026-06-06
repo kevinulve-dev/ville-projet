@@ -125,8 +125,9 @@
   .stlabel{background:#fff;color:#222;border:none;border-radius:5px;padding:1px 6px;font-size:10px;font-weight:700;box-shadow:var(--shadow-sm)}
   .stlabel::before{display:none}
   .leaflet-div-icon{background:transparent;border:0}
-  .station-pin div{transition:transform .12s ease,box-shadow .12s ease}
-  .station-pin:hover div{transform:scale(1.45);box-shadow:0 2px 8px rgba(0,0,0,.5)!important}
+  .pin{display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:transform .12s ease}
+  .pin svg{width:58%;height:58%;display:block}
+  .leaflet-marker-icon:hover .pin{transform:scale(1.25);box-shadow:0 3px 9px rgba(0,0,0,.5)}
   .leaflet-popup-content{font-size:12px}
   @media (max-width:1100px) and (min-width:821px){.right{width:320px}.sidebar{width:240px}}
   /* ----- mobile selector (hidden on desktop) ----- */
@@ -198,6 +199,7 @@
           <button class="sb-btn" id="sbRent">🔑 Louer</button>
           <button class="sb-btn" id="sbBuy">🏠 Acheter</button>
         </div>
+        <div class="sb-note">Filtré : 2 chambres min · 60 m² min</div>
       </div>
       <button class="dlbtn" id="dlbtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Télécharger la synthèse</button>
     </div>
@@ -449,21 +451,27 @@ const cities=[
 </script>
 <script>
 let bienType='';
+const SLID={"Vincennes":"AD08FR36720","Saint-Maur-des-Fossés":"AD08FR36709","Sceaux":"AD08FR36628","Bourg-la-Reine":"AD08FR36604","Saint-Cloud":"AD08FR36627","Antony":"AD08FR36599","Vanves":"AD08FR36631","Meudon":"AD08FR36620","Clamart":"AD08FR36608","Sèvres":"AD08FR36629","Ville-d'Avray":"AD08FR36633","Issy-les-Moulineaux":"AD08FR36616","Montrouge":"AD08FR36621","Chaville":"AD08FR36607","Suresnes":"AD08FR36630","Rueil-Malmaison":"AD08FR36626","Verrières-le-Buisson":"AD08FR36581","Saint-Germain-en-Laye":"AD08FR37122","Neuilly-sur-Seine":"AD08FR36623","Le Vésinet":"AD08FR32613","Bois-Colombes":"AD08FR36602","Maisons-Laffitte":"AD08FR32498","Chatou":"AD08FR32414","La Garenne-Colombes":"AD08FR36614","Croissy-sur-Seine":"AD08FR32429"};
+const SELOGER_FILTERS="&numberOfBedroomsMin=2&spaceMin=60";
 function slugify(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/['’]/g,'-').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
-function openSeloger(deal){ // deal: 'achat' | 'locations'
+function openSeloger(deal){ // deal: 'Buy' | 'Rent'
   if(!current)return;
-  const dept=current.code.slice(0,2);
-  const slug=slugify(current.name);
-  const url=`https://www.seloger.com/immobilier/${deal}/immo-${slug}-${dept}/`;
+  const code=SLID[current.name];
+  let url;
+  if(code){url=`https://www.seloger.com/classified-search?distributionTypes=${deal}&estateTypes=House,Apartment&locations=${code}${SELOGER_FILTERS}`;}
+  else{const dept=current.code.slice(0,2);url=`https://www.seloger.com/immobilier/${deal==='Rent'?'locations':'achat'}/immo-${slugify(current.name)}-${dept}/`;}
   window.open(url,'_blank','noopener');
 }
 function wireSeloger(){
   const rent=document.getElementById('sbRent'),buy=document.getElementById('sbBuy');
-  if(rent)rent.onclick=()=>openSeloger('locations');
-  if(buy)buy.onclick=()=>openSeloger('achat');
+  if(rent)rent.onclick=()=>openSeloger('Rent');
+  if(buy)buy.onclick=()=>openSeloger('Buy');
 }
 function colorOf(v){if(v>=8.2)return'#16a34a';if(v>=7.2)return'#65b30d';if(v>=6)return'#eab308';if(v>=4.5)return'#f97316';return'#ef4444';}
 function deptName(code){const d=code.slice(0,2);return d==='94'?'Val-de-Marne':d==='91'?'Essonne':d==='78'?'Yvelines':d==='93'?'Seine-Saint-Denis':d==='95'?'Val-d\'Oise':d==='77'?'Seine-et-Marne':d==='75'?'Paris':'Hauts-de-Seine';}
+const BOOK_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
+const METRO_SVG='<svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.5c-4 0-7.5.5-7.5 4V15a2.5 2.5 0 0 0 2.5 2.5L5.5 19v.5h2l1.5-1.5h6l1.5 1.5h2V19l-1.5-1.5A2.5 2.5 0 0 0 19.5 15V6.5c0-3.5-3.5-4-7.5-4zM7.6 15.6a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5zM11 10.5H6V6.8h5zm2 0V6.8h5v3.7zm3.4 5.1a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5z"/></svg>';
+function pinIcon(svg,color,size){return L.divIcon({className:'',html:`<div class="pin" style="width:${size}px;height:${size}px;background:${color}">${svg}</div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});}
 function scoreBg(v){if(v>=8.2)return['#dcfce7','#15803d'];if(v>=7.2)return['#ecfccb','#4d7c0f'];if(v>=6)return['#fef9c3','#a16207'];if(v>=4.5)return['#ffedd5','#c2410c'];return['#fee2e2','#b91c1c'];}
 function dist2(a,b,c,d){const dx=a-c,dy=b-d;return dx*dx+dy*dy;}
 function nearestQ(lat,lng,qs){let best=qs[0],bd=1e9;qs.forEach(q=>{const d=dist2(lat,lng,q.lat,q.lng);if(d<bd){bd=d;best=q;}});return best;}
@@ -480,11 +488,12 @@ cities.forEach(c=>{
 const _la=cities.map(c=>c.center[0]),_lo=cities.map(c=>c.center[1]);
 const ALLB=[[Math.min(..._la)-0.03,Math.min(..._lo)-0.03],[Math.max(..._la)+0.03,Math.max(..._lo)+0.03]];
 
-let map=null,mapOk=false,cityMarkers=[],current=null,activeQ=null;
+let map=null,mapOk=false,cityMarkers=[],current=null,activeQ=null,ptsRenderer=null;
 let irisLayer,schoolLayer,stationLayer,circleLayer;
 const cache={iris:{},schools:{}};
 try{
   map=L.map('map',{scrollWheelZoom:true,zoomControl:true});
+  map.createPane('pts');map.getPane('pts').style.zIndex=650;ptsRenderer=L.svg({pane:'pts'});
   const tiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19,attribution:'© OpenStreetMap © CARTO'});
   tiles.on('tileerror',()=>{document.getElementById('fallback').style.display='block';});
   tiles.addTo(map);
@@ -633,7 +642,7 @@ async function loadSchools(c){
   const rows=cache.schools[c.code]||[];
   const col={'Ecole':'#3b82f6','Collège':'#8b5cf6','Lycée':'#ec4899'};
   rows.forEach(s=>{
-    const m=L.circleMarker([s.latitude,s.longitude],{radius:5,color:'#fff',weight:1.5,fillColor:col[s.type_etablissement]||'#888',fillOpacity:1});
+    const m=L.marker([s.latitude,s.longitude],{pane:'pts',riseOnHover:true,icon:pinIcon(BOOK_SVG,col[s.type_etablissement]||'#888',22)});
     m.bindTooltip(`${s.nom_etablissement}${s.statut_public_prive?' ('+s.statut_public_prive+')':''}`,{direction:'top'});
     m.addTo(schoolLayer);
   });
@@ -644,7 +653,7 @@ function loadStations(c){
   stationLayer.clearLayers();
   const col={'RER':'#2563eb','Métro':'#f59e0b','Tram':'#0ea5e9','Train':'#7c3aed'};
   (c.stations||[]).forEach(s=>{
-    const m=L.marker([s.lat,s.lng],{riseOnHover:true,icon:L.divIcon({className:'station-pin',html:`<div style="background:${col[s.m]||'#333'};width:14px;height:14px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,iconSize:[14,14],iconAnchor:[7,7]})});
+    const m=L.marker([s.lat,s.lng],{pane:'pts',riseOnHover:true,icon:pinIcon(METRO_SVG,col[s.m]||'#333',24)});
     m.bindTooltip(s.n,{direction:'top',className:'stlabel'});
     m.addTo(stationLayer);
   });
