@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ixit12</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root{
+    --canvas:#e8ebef;--card:#fff;--soft:#f6f7f9;--soft2:#f0f2f5;--line:#edeff2;--line2:#e2e5ea;
+    --txt:#161a1f;--muted:#888f9a;--accent:#16a34a;--accentbg:#f0fdf4;--accentbd:#bbf7d0;
+    --g1:#16a34a;--g2:#65b30d;--g3:#eab308;--g4:#f97316;--g5:#ef4444;
+    --shadow:0 1px 2px rgba(16,24,40,.05),0 10px 28px rgba(16,24,40,.07);
+    --shadow-sm:0 1px 2px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;background:var(--canvas);color:var(--txt);-webkit-font-smoothing:antialiased}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#d4d8de;border-radius:8px}::-webkit-scrollbar-track{background:transparent}
+  #app{display:flex;gap:13px;padding:13px;height:100vh}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{width:284px;display:flex;flex-direction:column;overflow:hidden;flex:0 0 auto}
+  .brand{display:flex;align-items:center;gap:9px;padding:18px 18px 14px}
+  .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#16a34a,#65b30d);display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px;box-shadow:0 4px 10px rgba(22,163,74,.3)}
+  .brand .nm{font-weight:800;font-size:17px;letter-spacing:-.02em}
+  .brand .beta{font-size:9.5px;font-weight:700;color:var(--accent);background:var(--accentbg);border:1px solid var(--accentbd);padding:2px 6px;border-radius:6px;margin-left:2px}
+  .overviewbtn{display:flex;align-items:center;gap:8px;margin:2px 14px 12px;padding:10px 13px;border-radius:12px;border:1px solid var(--line2);background:var(--soft);color:var(--txt);font-size:13px;font-weight:700;cursor:pointer;width:calc(100% - 28px)}
+  .overviewbtn:hover{background:var(--accentbg);border-color:var(--accentbd);color:var(--accent)}
+  .overviewbtn svg{color:var(--accent)}
+  .sidehead{padding:6px 18px;font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;display:flex;justify-content:space-between}
+  .citylist{flex:1;overflow:auto;padding:2px 9px 8px}
+  .crow{display:flex;align-items:center;gap:10px;padding:9px 9px;border-radius:13px;cursor:pointer;border:1px solid transparent;transition:.12s;margin-bottom:2px}
+  .crow:hover{background:var(--soft)}
+  .crow.on{background:var(--accentbg);border-color:var(--accentbd)}
+  .crank{width:26px;height:26px;border-radius:8px;color:#fff;font-weight:700;font-size:11px;display:grid;place-items:center;flex:0 0 auto}
+  .cinfo{flex:1;min-width:0}
+  .cn{font-weight:600;font-size:13.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .csub{font-size:11px;color:var(--muted);margin-top:1px}
+  .cscore{font-weight:700;font-size:12.5px;padding:3px 9px;border-radius:999px;flex:0 0 auto}
+  .sidefoot{padding:12px 18px;border-top:1px solid var(--line);font-size:10.5px;color:var(--muted);line-height:1.5}
+  /* ---------- CENTER ---------- */
+  .center{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+  .chead{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .ctitle{display:flex;align-items:center;gap:12px;min-width:0}
+  .chev{width:34px;height:34px;border-radius:10px;border:1px solid var(--line2);background:#fff;color:var(--muted);cursor:pointer;font-size:14px;display:grid;place-items:center}
+  .chev:hover{background:var(--soft)}
+  .cname{font-weight:800;font-size:19px;letter-spacing:-.02em;line-height:1.1}
+  .cmeta{display:flex;align-items:center;gap:8px;margin-top:3px;font-size:12px;color:var(--muted)}
+  .status{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--accent)}
+  .status .led{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(22,163,74,.15)}
+  .toggles{display:flex;gap:7px}
+  .tg{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 12px;border-radius:10px;border:1px solid var(--line2);background:#fff;color:var(--muted);cursor:pointer}
+  .tg .sw{width:8px;height:8px;border-radius:50%;background:#cbd2da}
+  .tg.on{color:var(--txt);border-color:var(--accentbd);background:var(--accentbg)}
+  .tg.on .sw{background:var(--accent)}
+  .mapwrap{flex:1;position:relative}
+  #map{position:absolute;inset:0;background:#eef1f4}
+  .loading{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:600;background:#fff;border:1px solid var(--line2);border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;box-shadow:var(--shadow);display:none}
+  .fallback{position:absolute;left:12px;right:12px;bottom:12px;z-index:600;background:#fffbeb;border:1px solid #fde68a;color:#92590c;border-radius:12px;padding:10px 14px;font-size:12px;line-height:1.5;display:none}
+  /* ---------- RIGHT ---------- */
+  .right{width:372px;flex:0 0 auto;display:none;flex-direction:column;overflow:hidden;position:relative}
+  .right.show{display:flex;animation:slideIn .22s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+  .rclose{position:absolute;top:13px;right:13px;z-index:5;width:30px;height:30px;border-radius:9px;border:1px solid var(--line2);background:#fff;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;display:grid;place-items:center}
+  .rclose:hover{background:var(--soft);color:var(--txt)}
+  .rscroll{overflow:auto;padding:0}
+  /* sticky city header */
+  .cityhdr{position:sticky;top:0;z-index:3;border-bottom:1px solid var(--line);padding:16px 54px 14px 18px;min-height:108px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;background-size:cover;background-position:center;color:#fff}
+  .ch-name{font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.1;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.45)}
+  .ch-dep{font-size:11.5px;color:rgba(255,255,255,.88);margin-top:3px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.45)}
+  .ch-score{font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1;white-space:nowrap;color:#fff;padding:6px 11px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+  .ch-score small{font-size:11px;color:rgba(255,255,255,.88);font-weight:700}
+  .rbody{padding:16px 18px}
+  /* search bien (SeLoger) */
+  .searchbien{border:1px solid var(--line2);border-radius:14px;padding:13px;margin-bottom:16px;background:var(--soft)}
+  .sb-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:9px}
+  .sb-types{display:flex;gap:5px;margin-bottom:9px}
+  .sb-type{flex:1;font-size:11.5px;font-weight:600;padding:6px 4px;border-radius:9px;border:1px solid var(--line2);background:#fff;color:var(--muted);cursor:pointer}
+  .sb-type.on{background:var(--accentbg);border-color:var(--accentbd);color:var(--accent)}
+  .sb-actions{display:flex;gap:8px}
+  .sb-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:700;padding:10px;border-radius:11px;cursor:pointer;border:1px solid transparent}
+  .sb-btn.rent{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+  .sb-btn.rent:hover{background:#dbeafe}
+  .sb-btn.buy{background:var(--accent);color:#fff}
+  .sb-btn.buy:hover{filter:brightness(1.05)}
+  .sb-note{font-size:10.5px;color:var(--muted);margin-top:8px;text-align:center}
+  .rempty{color:var(--muted);font-size:13px;line-height:1.6;padding:30px 6px;text-align:center}
+  .scoreblock{display:flex;align-items:center;gap:14px;padding:4px 2px 14px}
+  .bigscore{font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1}
+  .bigscore small{font-size:15px;color:var(--muted);font-weight:600}
+  .scoremeta .nm{font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .scoremeta .tags{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+  .tag{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:7px;background:var(--soft2);color:#5b626c}
+  .tag.green{background:var(--accentbg);color:var(--accent);border:1px solid var(--accentbd)}
+  .metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:14px}
+  .metric{background:var(--soft);border:1px solid var(--line);border-radius:13px;padding:11px 12px}
+  .metric .v{font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .metric .l{font-size:10.5px;color:var(--muted);margin-top:2px;font-weight:600}
+  .rsection{font-size:10.5px;font-weight:700;letter-spacing:.07em;color:var(--muted);text-transform:uppercase;margin:6px 2px 9px;display:flex;justify-content:space-between}
+  .qdetail{border:1px solid var(--line2);border-radius:15px;padding:15px;margin-bottom:16px;background:linear-gradient(180deg,#fff,#fcfdfe)}
+  .qdetail .qtop{display:flex;align-items:center;gap:9px;margin-bottom:4px}
+  .qdetail .qpill{color:#fff;font-weight:800;font-size:13px;padding:3px 10px;border-radius:999px}
+  .qdetail h3{margin:0;font-size:16.5px;font-weight:800;letter-spacing:-.02em}
+  .qdetail .qiris{font-size:11px;color:var(--muted);margin:2px 0 12px}
+  .qrow{margin:11px 0;font-size:13px;line-height:1.5}
+  .qrow .k{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:3px}
+  .qverdict{margin-top:13px;padding:11px 13px;border-radius:12px;background:var(--soft);border:1px solid var(--line);font-size:12.5px;line-height:1.5}
+  .qlist{display:flex;flex-direction:column;gap:4px}
+  .qitem{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:11px;cursor:pointer;border:1px solid transparent}
+  .qitem:hover{background:var(--soft)}
+  .qitem.on{background:var(--accentbg);border-color:var(--accentbd)}
+  .qdot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+  .qitem .qn{flex:1;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .qitem .qv{font-size:11.5px;font-weight:700;color:var(--muted)}
+  .legend{display:flex;gap:9px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);padding:12px 2px 2px;border-top:1px solid var(--line);margin-top:12px}
+  .legend span{display:inline-flex;align-items:center;gap:4px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  /* leaflet tweaks */
+  .qlabel{background:rgba(255,255,255,.85)!important;color:#222!important;border:none!important;border-radius:5px;padding:0 5px;font-size:10px;font-weight:700;box-shadow:none}
+  .qlabel::before{display:none}
+  .citylabel{background:#16a34a;color:#fff;border:none;border-radius:7px;padding:3px 9px;font-size:11.5px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .citylabel::before{display:none}
+  .stlabel{background:#fff;color:#222;border:none;border-radius:5px;padding:1px 6px;font-size:10px;font-weight:700;box-shadow:var(--shadow-sm)}
+  .stlabel::before{display:none}
+  .leaflet-popup-content{font-size:12px}
+  @media (max-width:1100px){.right{width:320px}.sidebar{width:240px}}
+  @media (max-width:880px){#app{flex-direction:column;height:auto}.sidebar,.right{width:100%}.center{height:60vh}.mapwrap{min-height:340px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar card">
+    <div class="brand"><div class="logo">12</div><span class="nm">Exit</span><span class="beta">beta</span></div>
+    <button class="overviewbtn" id="overviewBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+      Vue d'ensemble
+    </button>
+    <div class="sidehead"><span>Villes</span><span id="cityCount"></span></div>
+    <div class="citylist" id="citylist"></div>
+    <div class="sidefoot">Sud + Ouest parisien · classement pondéré, priorité carte scolaire (CP → lycée).</div>
+  </aside>
+  <!-- CENTER -->
+  <main class="center card">
+    <div class="chead">
+      <div class="ctitle">
+        <button class="chev" id="zoomOut" title="Vue d'ensemble">⌂</button>
+        <div>
+          <div class="cname" id="cName">Vue d'ensemble</div>
+          <div class="cmeta"><span class="status" id="cStatus"><span class="led"></span>11 villes</span><span id="cSub">— choisis une ville</span></div>
+        </div>
+      </div>
+      <div class="toggles">
+        <button class="tg on" id="tgIris"><span class="sw"></span>Quartiers</button>
+        <button class="tg on" id="tgSchools"><span class="sw"></span>Écoles</button>
+        <button class="tg on" id="tgStations"><span class="sw"></span>Transports</button>
+      </div>
+    </div>
+    <div class="mapwrap">
+      <div id="map"></div>
+      <div class="loading" id="loading">Chargement des données…</div>
+      <div class="fallback" id="fallback">⚠️ Données non chargées (pas d'accès internet ici). Ouvre ce fichier dans ton navigateur pour la carte, les polygones IRIS et les écoles en direct.</div>
+    </div>
+  </main>
+  <!-- RIGHT -->
+  <aside class="right card" id="right">
+    <button class="rclose" id="rclose" title="Fermer">×</button>
+    <div class="rscroll" id="rscroll"></div>
+  </aside>
+</div>
+<script>
+const cities=[
+{name:"Vincennes",score:8.43,code:"94080",r:330,
+ stations:[{n:"RER A Vincennes",lat:48.8475,lng:2.4360,m:"RER"},{n:"M1 Château de Vincennes",lat:48.8443,lng:2.4408,m:"Métro"},{n:"M1 Bérault",lat:48.8456,lng:2.4283,m:"Métro"}],
+ quartiers:[
+ {n:"Cœur de Ville / Centre",lat:48.8478,lng:2.4370,note:9,college:"Hector Berlioz ou Saint-Exupéry selon rue",ecoles:"Roland Vernaudon (IPS 148,9), Sud (149,2)",prix:"~9 000–9 500 €/m²",transport:"RER A Vincennes (~10 min Châtelet) + M1 Bérault",ambiance:"Hyper-centre commerçant bourgeois, rue du Midi piétonne, marché.",verdict:"✅ Top : écoles excellentes, RER A immédiat. Le plus cher."},
+ {n:"Domaine du Bois / Diderot",lat:48.8425,lng:2.4450,note:9,college:"Saint-Exupéry ou Françoise Giroud selon rue",ecoles:"Simone Veil (IPS 150,8 — le + haut de la ville)",prix:"haut de gamme, >9 000 €/m² avec extérieur",transport:"M1 (Bérault/Château) + RER A, accès direct au Bois",ambiance:"Le plus verdoyant, lisière du Bois de Vincennes, immeubles familiaux/standing.",verdict:"✅ Cadre le plus vert + meilleure école élémentaire."},
+ {n:"Ouest / République",lat:48.8472,lng:2.4285,note:8.5,college:"Hector Berlioz (av. de Paris)",ecoles:"École Ouest (140,3), Jean Monnet (134,8)",prix:"~8 500–9 200 €/m²",transport:"M1 (Saint-Mandé/Bérault), le plus proche de Paris",ambiance:"Continuité avec Saint-Mandé/Paris 12e, résidentiel bourgeois.",verdict:"✅ Atout : secteur du collège Berlioz."},
+ {n:"Château / Nord-Est",lat:48.8444,lng:2.4407,note:8.5,college:"Hector Berlioz (très proche)",ecoles:"Est-Passeleu (141,7), Est-Libération (133,5)",prix:"~8 500–9 000 €/m²",transport:"M1 terminus Château + RER A",ambiance:"Autour du château et du terminus M1, proximité du Bois.",verdict:"✅ Très bien : proche Berlioz et du Bois."},
+ {n:"Est / Libération",lat:48.8490,lng:2.4475,note:7.5,college:"Françoise Giroud (secteur est)",ecoles:"Est-Libération (133,5), Est-Passeleu (141,7)",prix:"~8 000–8 500 €/m²",transport:"M1 Château de Vincennes, RER A plus loin",ambiance:"Est de la ville, plus de collectif, un peu plus accessible.",verdict:"🟢 Bon, un cran sous le centre."},
+ {n:"Plateau / Nord",lat:48.8510,lng:2.4385,note:7.5,college:"Françoise Giroud ou Saint-Exupéry",ecoles:"Jean Monnet (134,8) selon adresse",prix:"~8 000–8 500 €/m²",transport:"M1 / bus",ambiance:"Frange nord, un peu plus mélangée mais correcte.",verdict:"🟢 Correct. Bonne adresse vincennoise."}
+]},
+{name:"Saint-Maur-des-Fossés",score:8.35,code:"94068",r:430,
+ stations:[{n:"RER A Saint-Maur-Créteil",lat:48.8003,lng:2.4877,m:"RER"},{n:"RER A Le Parc de Saint-Maur",lat:48.8061,lng:2.4990,m:"RER"},{n:"RER A La Varenne-Chennevières",lat:48.7858,lng:2.5060,m:"RER"}],
+ quartiers:[
+ {n:"Le Parc",lat:48.8050,lng:2.4985,note:9,college:"Collège Le Parc (bonne réputation)",ecoles:"Le Parc-Tilleuls (IPS 148,2)",prix:"appart ~5 880, maison ~5 930 €/m²",transport:"RER A Le Parc de Saint-Maur (~22 min Châtelet)",ambiance:"Bourgeois résidentiel arboré autour du parc.",verdict:"✅ Le meilleur binôme école+collège de la ville."},
+ {n:"La Varenne – Saint-Hilaire",lat:48.7860,lng:2.5070,note:8.5,college:"Camille Pissarro (quelques rues → Louis Blanc/Le Parc)",ecoles:"secteur prisé bord de Marne",prix:"appart ~5 640–6 860, maison ~8 100 €/m²",transport:"RER A La Varenne-Chennevières (~25 min)",ambiance:"Le plus chic : villas bord de Marne, ambiance village, guinguettes.",verdict:"✅ Prestigieux et familial. Le plus cher."},
+ {n:"Champignol",lat:48.7950,lng:2.5055,note:8,college:"Louis Blanc ou Pissarro selon rue",ecoles:"Champignol (IPS 146,6)",prix:"appart ~5 520–6 440, maison ~7 795 €/m²",transport:"proche La Varenne-Chennevières (RER A)",ambiance:"Résidentiel pavillonnaire, familial, calme.",verdict:"✅ Très bon : école à IPS élevé, maisons accessibles."},
+ {n:"Adamville",lat:48.7960,lng:2.4835,note:7.5,college:"François Rabelais ou Le Parc selon rue",ecoles:"écoles d'Adamville",prix:"appart ~5 380–6 335, maison ~7 230 €/m²",transport:"entre Saint-Maur-Créteil et Le Parc (RER A)",ambiance:"Pavillonnaire calme et résidentiel.",verdict:"🟢 Bon secteur familial. Vérifier l'école exacte."},
+ {n:"Le Vieux Saint-Maur",lat:48.8055,lng:2.4775,note:7.5,college:"François Rabelais (le plus proche)",ecoles:"écoles du Vieux Saint-Maur",prix:"~5 700–6 500 €/m²",transport:"RER A Saint-Maur-Créteil, bord de Marne",ambiance:"Quartier historique pittoresque au bord de la Marne.",verdict:"🟢 Charmant. Collège Rabelais (correct)."},
+ {n:"Les Mûriers",lat:48.7905,lng:2.4955,note:6.5,college:"Louis Blanc",ecoles:"à vérifier à l'adresse",prix:"~5 400–5 800 €/m²",transport:"entre Saint-Maur-Créteil et La Varenne (RER A)",ambiance:"Résidentiel, mix pavillon/collectif.",verdict:"🟡 Correct, vérifier l'école (IPS variables)."},
+ {n:"Centre / Saint-Maur-Créteil",lat:48.8000,lng:2.4880,note:6.5,college:"François Rabelais",ecoles:"centre — IPS contrastés (Les Chalets 103)",prix:"~5 500–6 000 €/m²",transport:"RER A Saint-Maur-Créteil (~20 min)",ambiance:"Centre administratif/commerçant, plus urbain.",verdict:"🟡 Pratique mais vérifier l'élémentaire (148 vs 103)."},
+ {n:"La Pie",lat:48.8130,lng:2.4835,note:5,college:"Louis Blanc ou Rabelais selon rue",ecoles:"écoles à IPS plus bas (vigilance)",prix:"appart ~5 060–5 726, maison ~6 790 €/m²",transport:"plus excentré, proximité Joinville (RER A)",ambiance:"Nord de la ville, plus modeste et mixte.",verdict:"🟠 Le plus accessible, carte scolaire à vérifier de près."}
+]},
+{name:"Sceaux",score:8.26,code:"92071",r:300,
+ stations:[{n:"RER B Sceaux",lat:48.7776,lng:2.2889,m:"RER"},{n:"RER B Robinson",lat:48.7862,lng:2.2842,m:"RER"},{n:"RER B Bourg-la-Reine",lat:48.7800,lng:2.3146,m:"RER"}],
+ quartiers:[
+ {n:"Centre-ville",lat:48.7785,lng:2.2905,note:9,college:"Lakanal (à confirmer rue par rue)",ecoles:"élémentaire Centre (~349 él., réputée)",prix:"~7 590 €/m² (le + cher)",transport:"RER B Sceaux à pied (~25 min Châtelet)",ambiance:"Cœur historique commerçant (rue Houdan piétonne), bourgeois.",verdict:"✅ Top : école réputée, secteur Lakanal, central."},
+ {n:"Petit Chambord",lat:48.7765,lng:2.2975,note:9,college:"Lakanal (à confirmer)",ecoles:"élémentaire Petit Chambord (la + prisée)",prix:"~6 000–7 000 €/m²",transport:"RER B Sceaux ou Bourg-la-Reine à 5-10 min",ambiance:"Résidentiel pavillonnaire bourgeois, calme, familial.",verdict:"✅ Excellent : meilleure élémentaire + secteur Lakanal."},
+ {n:"Clos Saint-Marcel",lat:48.7725,lng:2.2895,note:8.5,college:"Marie Curie (sud/ouest — à confirmer)",ecoles:"élémentaire Clos Saint-Marcel (IPS ~146)",prix:"~7 090 €/m²",transport:"RER B Sceaux (av. de la Gare)",ambiance:"Résidentiel calme, mixte maisons / petit collectif.",verdict:"✅ Très bon : IPS élevé, collège Marie Curie."},
+ {n:"Robinson",lat:48.7855,lng:2.2840,note:8,college:"Marie Curie (ouest — à confirmer)",ecoles:"rattachement Centre/Clos St-Marcel selon adresse",prix:"~6 930 €/m²",transport:"RER B Robinson (terminus, place assise)",ambiance:"Résidentiel verdoyant pavillonnaire, proche Parc de Sceaux.",verdict:"🟢 Agréable et vert. Vérifier l'élémentaire."},
+ {n:"Charaire",lat:48.7800,lng:2.2950,note:8,college:"Lakanal ou Marie Curie selon la rue",ecoles:"Centre ou Petit Chambord selon adresse",prix:"~6 500–7 500 €/m²",transport:"RER B Sceaux ou Robinson",ambiance:"Résidentiel autour du centre commercial Charaire.",verdict:"🟢 Bon, secteur collège à confirmer (lisière)."},
+ {n:"Les Blagis",lat:48.7825,lng:2.2970,note:6,college:"Marie Curie (à confirmer)",ecoles:"élémentaire Les Blagis (profil plus mixte)",prix:"~6 420 €/m² (le + accessible)",transport:"RER B Robinson ou Fontenay-aux-Roses",ambiance:"Plus modeste et collectif. Effet de seuil av. Jean-Perrin (IPS 140→108).",verdict:"🟡 Vigilance : rester côté Sceaux de l'av. Jean-Perrin."}
+]},
+{name:"Bourg-la-Reine",score:7.90,code:"92014",r:300,
+ stations:[{n:"RER B Bourg-la-Reine",lat:48.7800,lng:2.3146,m:"RER"}],
+ quartiers:[
+ {n:"Centre / gare-République",lat:48.7795,lng:2.3145,note:9,college:"Évariste Galois (unique public)",ecoles:"élémentaire République (IPS ~150)",prix:"~5 637 €/m²",transport:"RER B Bourg-la-Reine (~16-18 min Châtelet)",ambiance:"Centre-ville animé et commerçant, bourgeois.",verdict:"✅ Top : meilleure élémentaire + collège unique garanti + RER rapide."},
+ {n:"La Faïencerie / Clos Saint-Cyr",lat:48.7760,lng:2.3100,note:8.5,college:"Évariste Galois (unique public)",ecoles:"élémentaire La Faïencerie",prix:"~6 070 €/m² (programmes neufs)",transport:"RER B Bourg-la-Reine (~10 min à pied)",ambiance:"Résidentiel calme et recherché, secteur en renouvellement.",verdict:"✅ Très bon : cadre coté, collège Galois garanti."},
+ {n:"Petit Chambord (BLR)",lat:48.7760,lng:2.3000,note:8,college:"Évariste Galois (unique public)",ecoles:"La Faïencerie ou Pierre Loti selon adresse",prix:"~5 120 €/m²",transport:"RER B Bourg-la-Reine à pied",ambiance:"Résidentiel pavillonnaire bourgeois, frontière Sceaux.",verdict:"🟢 Bon et plus abordable. Collège Galois garanti."},
+ {n:"Pierre Loti / Fontenay",lat:48.7815,lng:2.3050,note:7.5,college:"Évariste Galois (unique public)",ecoles:"élémentaire Pierre Loti (IPS ~125-130)",prix:"~5 170 €/m²",transport:"RER B Bourg-la-Reine ou Fontenay-aux-Roses",ambiance:"Pavillonnaire, plus calme et un peu plus modeste.",verdict:"🟢 Le plus abordable, collège identique (Galois)."}
+]},
+{name:"Saint-Cloud",score:7.87,code:"92064",r:330,
+ stations:[{n:"Transilien L Saint-Cloud",lat:48.8401,lng:2.2107,m:"Train"},{n:"Transilien L Le Val d'Or",lat:48.8470,lng:2.2233,m:"Train"},{n:"T2 Parc de Saint-Cloud",lat:48.8306,lng:2.2206,m:"Tram"},{n:"T2 Les Coteaux",lat:48.8412,lng:2.2210,m:"Tram"},{n:"T2 Les Milons",lat:48.8368,lng:2.2188,m:"Tram"},{n:"T2 Le Val d'Or",lat:48.8449,lng:2.2247,m:"Tram"}],
+ quartiers:[
+ {n:"Val d'Or",lat:48.8475,lng:2.2210,note:9,college:"Émile Verhaeren (IPS 147, section internationale)",ecoles:"Val d'Or — école d'application",prix:"~6 600 €/m²",transport:"⭐ gare Val d'Or (L) + T2 (La Défense)",ambiance:"Quartier plus récent, prisé des cadres sup.",verdict:"✅ Meilleur compromis : école d'application + Verhaeren + transport."},
+ {n:"Les Coteaux / Bords de Seine",lat:48.8420,lng:2.2180,note:8.5,college:"Émile Verhaeren (IPS 147)",ecoles:"Les Coteaux (IPS 140)",prix:"~6 720 €/m²",transport:"T2 Les Coteaux + gare Saint-Cloud",ambiance:"Vues sur Paris, belles propriétés en lisière du Parc.",verdict:"✅ Très bon : école IPS 140 + collège Verhaeren."},
+ {n:"Centre / Village",lat:48.8450,lng:2.2110,note:7.5,college:"Gounod (IPS 138) — PAS Verhaeren",ecoles:"élémentaire Centre",prix:"~6 500 €/m²",transport:"à pied de la gare Saint-Cloud (L+U)",ambiance:"Cœur historique recherché, paisible, commerces.",verdict:"🟢 Central, mais secteur collège Gounod."},
+ {n:"Montretout",lat:48.8410,lng:2.2040,note:7.5,college:"Gounod (IPS 138) — PAS Verhaeren",ecoles:"Montretout (la + grande, réputée)",prix:"~7 780 €/m² (le + cher)",transport:"en hauteur, marche jusqu'à la gare",ambiance:"Le + bourgeois : grandes maisons en pierre, vue sur Paris.",verdict:"🟢 Le plus chic, mais mène à Gounod — vérifier la rue."},
+ {n:"Hippodrome / Fouilleuse",lat:48.8530,lng:2.2050,note:7.5,college:"Émile Verhaeren (IPS 147)",ecoles:"Fouilleuse",prix:"~6 060–6 220 €/m² (le + abordable)",transport:"plus excentré : bus, accès moins direct",ambiance:"Plateau aéré et vert (hippodrome 75 ha).",verdict:"🟢 Même collège Verhaeren à prix doux, transport moins direct."},
+ {n:"Les Milons",lat:48.8370,lng:2.2160,note:7.5,college:"Émile Verhaeren (IPS 147)",ecoles:"selon adresse (Coteaux à proximité)",prix:"~6 400 €/m²",transport:"T2 Les Milons",ambiance:"Résidentiel sud, plus collectif par endroits.",verdict:"🟢 Bon : collège Verhaeren, desserte T2."},
+ {n:"Coutureau",lat:48.8430,lng:2.2070,note:7,college:"Gounod (IPS 138)",ecoles:"Montretout ou Centre selon adresse",prix:"~6 800–7 500 €/m²",transport:"proche centre et gare Saint-Cloud",ambiance:"Résidentiel calme.",verdict:"🟡 Calme et coté, mais secteur Gounod."},
+ {n:"Pasteur / Magenta",lat:48.8425,lng:2.2130,note:6.5,college:"Gounod (IPS 138)",ecoles:"Louis Pasteur",prix:"~6 400–6 600 €/m²",transport:"proche gare Saint-Cloud",ambiance:"Central-sud, plutôt mixte, un peu + modeste.",verdict:"🟡 Correct, secteur Gounod."}
+]},
+{name:"Antony",score:7.87,code:"92002",r:430,
+ stations:[{n:"RER B Antony",lat:48.7545,lng:2.2990,m:"RER"},{n:"RER B Les Baconnets",lat:48.7447,lng:2.2858,m:"RER"},{n:"RER B Fontaine-Michalon",lat:48.7596,lng:2.3028,m:"RER"},{n:"RER B La Croix de Berny",lat:48.7659,lng:2.3157,m:"RER"}],
+ quartiers:[
+ {n:"Centre-ville / Saint-Saturnin",lat:48.7536,lng:2.2967,note:9,college:"François Furet (très coté) ou Descartes",ecoles:"Anatole France, Jules Ferry, Ferdinand Buisson (IPS 148)",prix:"~5 420 €/m²",transport:"RER B Antony sur place + OrlyVal",ambiance:"Cœur commerçant historique. Sécurité 4,6/5.",verdict:"✅ Le meilleur compromis carte scolaire de la ville."},
+ {n:"Mounié-Auffret",lat:48.752,lng:2.301,note:8.5,college:"Descartes ou François Furet (coté)",ecoles:"secteur centre (Jules Ferry / Anatole France)",prix:"~5 400 €/m²+",transport:"5–10 min à pied du RER B Antony",ambiance:"Prolongement résidentiel chic du centre.",verdict:"✅ Excellent secteur, équivalent du centre."},
+ {n:"Velpeau / La Fontaine",lat:48.758,lng:2.297,note:8.5,college:"La Fontaine (coté)",ecoles:"Velpeau, La Fontaine",prix:"~5 000–6 000 €/m²",transport:"RER B Antony à pied",ambiance:"Très résidentiel, pavillonnaire, proche coulée verte et parc de Sceaux.",verdict:"✅ Bon secteur : collège La Fontaine coté, vert."},
+ {n:"La Croix de Berny / Bois de l'Aurore",lat:48.765,lng:2.311,note:8,college:"La Fontaine (coté) sur une grande partie",ecoles:"André Pasquier (IPS 148)",prix:"au-dessus de la moyenne",transport:"RER B Croix de Berny + tram T10 + A86",ambiance:"Haut de gamme, parc Heller. Très connecté.",verdict:"✅ Familles aisées, très bien desservi."},
+ {n:"Fontaine-Michalon",lat:48.7596,lng:2.3052,note:7.5,college:"La Fontaine (nord) ou Anne Frank (sud)",ecoles:"Paul Bert",prix:"pavillons valorisés",transport:"RER B Fontaine-Michalon",ambiance:"Très pavillonnaire, verdoyant, parc Heller.",verdict:"🟡 Cadre superbe, limite sud → Anne Frank : vérifier."},
+ {n:"Les Rabats",lat:48.748,lng:2.293,note:6.5,college:"Henri-Georges Adam (brevet le + faible)",ecoles:"Les Rabats (groupe scolaire)",prix:"au-dessus de la moyenne",transport:"entre Antony et Les Baconnets",ambiance:"Résidentiel calme et pavillonnaire, prisé des familles.",verdict:"🟡 Agréable, MAIS collège H.-G. Adam le plus faible."},
+ {n:"Les Baconnets",lat:48.7448,lng:2.2862,note:5.5,college:"Henri-Georges Adam",ecoles:"secteur Baconnets / Rabats",prix:"parmi les + abordables",transport:"RER B Les Baconnets, proximité Massy",ambiance:"Maisons individuelles, calme. MAIS abords de gare sensibles.",verdict:"🟡 Abordable, collège faible + abords à surveiller."},
+ {n:"Pajeaud",lat:48.760,lng:2.314,note:3.5,college:"Anne Frank (le + fragile)",ecoles:"Adolphe Pajeaud (IPS 125)",prix:"<moyenne",transport:"bus",ambiance:"Cœur = grands ensembles classés sensibles.",verdict:"🔴 À éviter pour l'école, sauf frange pavillonnaire."},
+ {n:"Le Pont d'Antony / Jean Zay",lat:48.748,lng:2.305,note:4,college:"Anne Frank (sud)",ecoles:"secteur sud",prix:"sous la moyenne",transport:"bus ; RER B Antony accessible",ambiance:"Quartier historique (Bièvre), populaire, en mutation.",verdict:"🔴 Secteur Anne Frank. À éviter pour l'école."},
+ {n:"Le Noyer-Doré",lat:48.748,lng:2.312,note:2.5,college:"Anne Frank (QPV)",ecoles:"École du Noyer-Doré",prix:"les + bas (appart ~4 035 €/m²)",transport:"bus ; éloigné des gares",ambiance:"Quartier Prioritaire (QPV), le plus fragile d'Antony.",verdict:"🔴 Déconseillé pour la carte scolaire."}
+]},
+{name:"Vanves",score:7.81,code:"92075",r:280,
+ stations:[{n:"Transilien N Vanves-Malakoff",lat:48.8225,lng:2.2900,m:"Train"},{n:"M13 Malakoff-Plateau de Vanves",lat:48.8195,lng:2.2985,m:"Métro"}],
+ quartiers:[
+ {n:"Le Lycée (Michelet)",lat:48.8230,lng:2.2845,note:9,college:"Michelet (~95% brevet)",ecoles:"Larmeroux, Marceau à proximité",prix:"appart ~6 500, maison ~8 800 €/m²",transport:"Transilien N Vanves-Malakoff (~5 min Montparnasse) + M13",ambiance:"Le plus prestigieux, autour du complexe Michelet et de son parc, bourgeois.",verdict:"✅ Top : collège ET lycée Michelet, gare 5 min de Montparnasse."},
+ {n:"Vanves-Centre / Centre Ancien",lat:48.8230,lng:2.2900,note:8.5,college:"Michelet ou Saint-Exupéry selon rue",ecoles:"Marceau, Larmeroux, Gambetta",prix:"appart ~6 192, maison ~9 319 €/m²",transport:"Gare Vanves-Malakoff (~5 min Montparnasse)",ambiance:"Cœur de ville commerçant (mairie, marché), mix immeubles + pavillons, familial.",verdict:"✅ Excellent : ultra-desservi, écoles réputées. Vérifier le collège (Michelet/St-Ex)."},
+ {n:"Clos Montholon",lat:48.8190,lng:2.2825,note:8,college:"probable Michelet (à confirmer)",ecoles:"Larmeroux / Marceau",prix:"appart ~6 890, maison ~9 774 €/m² (le + cher)",transport:"bus + M13 (Malakoff-Plateau de Vanves)",ambiance:"Résidentiel calme, programmes neufs de standing, plutôt aisé.",verdict:"✅ Coté et neuf, un peu plus loin de la gare."},
+ {n:"Le Plateau (nord)",lat:48.8205,lng:2.3010,note:7.5,college:"probable Saint-Exupéry (à confirmer)",ecoles:"Cabourg, Max Fourestier, Gambetta",prix:"appart ~5 730–5 797 €/m² (les + accessibles)",transport:"M13 Malakoff-Plateau de Vanves (~10 min Montparnasse)",ambiance:"Nord-est plus dense/collectif autour du métro, animé, un peu plus modeste.",verdict:"🟢 Bon et plus abordable, très bien desservi (M13)."}
+]},
+{name:"Meudon",score:7.62,code:"92048",r:380,
+ stations:[{n:"Transilien N Meudon",lat:48.8138,lng:2.2353,m:"Train"},{n:"Transilien N Bellevue",lat:48.8205,lng:2.2280,m:"Train"},{n:"RER C Meudon-Val Fleury",lat:48.8108,lng:2.2358,m:"RER"},{n:"T6 Meudon-la-Forêt",lat:48.7895,lng:2.2585,m:"Tram"}],
+ quartiers:[
+ {n:"Bellevue",lat:48.821,lng:2.228,note:8,college:"Rabelais (le mieux coté ~82%)",ecoles:"Ferdinand Buisson, La Source, St-Joseph (privé)",prix:"~6 800 €/m² (jusqu'à 7 900)",transport:"Transilien N Bellevue (~15 min Montparnasse) + T2 en bas",ambiance:"Hauteurs résidentielles bourgeoises, maisons de standing, vues sur Paris.",verdict:"✅ Le plus chic de Meudon, écoles réputées, collège Rabelais."},
+ {n:"Meudon-Centre / Val Fleury",lat:48.812,lng:2.238,note:8,college:"Rabelais (à confirmer par rue)",ecoles:"Jules Ferry, école du Val, Monnet-Debussy, Brossolette",prix:"Val Fleury ~6 630 €/m²",transport:"Transilien N Meudon (~10 min) + RER C Val Fleury",ambiance:"Cœur de ville vivant, mixte immeubles + maisons, commerces.",verdict:"✅ Meilleur équilibre vie/transport + collège Rabelais."},
+ {n:"Bas-Meudon / Pont de Sèvres",lat:48.827,lng:2.224,note:7,college:"Bel Air (~95% brevet) à confirmer",ecoles:"secteur Ferdinand Buisson / écoles du bas",prix:"~5 800–6 000 €/m²",transport:"T2 (vers La Défense et Porte de Versailles)",ambiance:"Bords de Seine, plus urbain/collectif, en mutation, plus accessible.",verdict:"🟢 Plus abordable, bien relié à La Défense (T2)."},
+ {n:"Les Bruyères",lat:48.802,lng:2.250,note:7,college:"Armande Béjart ou Rabelais selon rue",ecoles:"secteur entre centre et Meudon-la-Forêt",prix:"~6 000 €/m²",transport:"Tram T6 (vers Châtillon-Montrouge / M13)",ambiance:"Pavillonnaire boisé, calme, lisière de forêt de Meudon, familial.",verdict:"🟢 Cadre vert agréable. Vérifier le collège (Béjart/Rabelais)."},
+ {n:"Meudon-la-Forêt",lat:48.788,lng:2.262,note:5,college:"Armande Béjart (~72% brevet)",ecoles:"Saint-Exupéry, Curie, Maritain-Renan, Camus-Pasteur",prix:"~5 900 €/m² (le + accessible)",transport:"Tram T6 → Châtillon-Montrouge (M13), loin des gares N",ambiance:"Grands ensembles années 60, plus modeste/populaire, mais espaces verts et forêt.",verdict:"🟠 Le plus abordable, mais collège Béjart en retrait + transports moins directs."}
+]},
+{name:"Clamart",score:7.52,code:"92023",r:380,
+ stations:[{n:"Transilien N Clamart",lat:48.8138,lng:2.2618,m:"Train"},{n:"T6 Soleil Levant",lat:48.7905,lng:2.2530,m:"Tram"},{n:"T6 Hôpital Béclère",lat:48.7855,lng:2.2585,m:"Tram"},{n:"M13 Châtillon-Montrouge",lat:48.8105,lng:2.3015,m:"Métro"}],
+ quartiers:[
+ {n:"Clamart-Centre / Trosy",lat:48.8010,lng:2.2660,note:8,college:"Alain-Fournier (~91% brevet)",ecoles:"Jules-Ferry, Paul-Bert, Maison-Blanche à proximité",prix:"appart ~5 600–5 800, maison ~7 400–8 800 €/m²",transport:"Gare Clamart (Transilien N, ~10-12 min Montparnasse) + future L15",ambiance:"Cœur historique (Trosy piétonnier, marché), mix collectif + pavillonnaire bourgeois.",verdict:"✅ Le plus recherché : bon collège, future ligne 15 (gros atout)."},
+ {n:"La Gare / Nord (Fleury)",lat:48.8140,lng:2.2625,note:7.5,college:"Maison-Blanche ou La Paix (Issy) selon rue depuis 2021",ecoles:"secteur Maison-Blanche / écoles du nord",prix:"appart ~5 100–5 500, maison ~6 870–8 350 €/m²",transport:"Gare Clamart (~10 min Montparnasse), future L15",ambiance:"Quartier en mutation autour de la gare, résidences récentes de standing, dynamique.",verdict:"🟢 Très bien desservi, neuf. Vérifier l'affectation collège (bascule partielle vers Issy)."},
+ {n:"Jardin Parisien",lat:48.8000,lng:2.2540,note:7.5,college:"Maison-Blanche ou Alain-Fournier selon rue",ecoles:"écoles de l'ouest clamartois",prix:"appart ~5 547–6 579 (le + cher), maison ~7 130–8 130 €/m²",transport:"bus vers Gare Clamart / M13, proximité forêt de Meudon",ambiance:"Résidentiel arboré côté ouest/forêt, calme, plutôt aisé.",verdict:"🟢 Cadre vert recherché. Vérifier le collège de secteur."},
+ {n:"Galvents-Corby",lat:48.7950,lng:2.2700,note:7.5,college:"Alain-Fournier (~91% brevet)",ecoles:"écoles du sud-centre",prix:"maisons ~7 000–8 000 €/m²",transport:"bus, accès via centre",ambiance:"Résidentiel/pavillonnaire calme, prisé pour maisons d'architecte.",verdict:"🟢 Bon : collège Alain-Fournier, pavillonnaire."},
+ {n:"La Fourche",lat:48.8080,lng:2.2730,note:6.5,college:"Maison-Blanche selon rue (à vérifier)",ecoles:"écoles de l'est clamartois",prix:"proche moyenne ville (~5 850 €/m²)",transport:"proche T6 et M13 Châtillon-Montrouge (~20-25 min)",ambiance:"Quartier est vers Châtillon, plus collectif/populaire-mixte.",verdict:"🟡 Correct, bien relié (M13/T6). Vérifier le collège."},
+ {n:"Percy-Schneider",lat:48.7870,lng:2.2590,note:6,college:"mixte (Rabelais Meudon / La Paix Issy) — à vérifier",ecoles:"écoles de l'ouest",prix:"appart ~5 343–5 868, maison ~7 011–9 589 €/m²",transport:"bus ; accès M13 / T6 selon point",ambiance:"Autour de l'hôpital Percy, mixte collectif/pavillonnaire, plus modeste par endroits.",verdict:"🟡 Secteur collège incertain : vérifier impérativement la rue."},
+ {n:"Le Petit-Clamart",lat:48.7770,lng:2.2680,note:4.5,college:"Petits-Ponts (secteur fragile)",ecoles:"écoles du sud",prix:"appart ~4 073–5 451 (les + bas), maison ~5 317–7 257 €/m²",transport:"Tram T6 ; le moins bien relié à Paris",ambiance:"Extrême sud près de l'A86, mixte pavillonnaire + ensembles, excentré.",verdict:"🟠 Abordable mais collège Petits-Ponts + transports faibles."},
+ {n:"Le Plateau / Trivaux-La Garenne",lat:48.7910,lng:2.2480,note:3,college:"Petits-Ponts (secteur QPV)",ecoles:"écoles du Plateau",prix:"appart ~4 073–4 515 €/m² (les + bas)",transport:"Tram T6 (Soleil Levant / Béclère), loin des gares N",ambiance:"Grands ensembles côté forêt, Quartier Prioritaire (QPV), le plus fragile.",verdict:"🔴 À éviter pour la carte scolaire."}
+]},
+{name:"Sèvres",score:7.45,code:"92072",r:300,
+ stations:[{n:"Transilien N Sèvres-Rive-Gauche",lat:48.8235,lng:2.2085,m:"Train"},{n:"T2 Brimborion",lat:48.8270,lng:2.2210,m:"Tram"},{n:"Transilien L Sèvres-Ville-d'Avray",lat:48.8240,lng:2.1980,m:"Train"}],
+ quartiers:[
+ {n:"Centre / Rive Gauche",lat:48.823,lng:2.213,note:8,college:"Collège de Sèvres (unique) → lycée Vernant",ecoles:"Gambetta A et B, Brimborion",prix:"~5 600–5 840 €/m²",transport:"Transilien N Sèvres-Rive-Gauche (~12 min Montparnasse) + T2",ambiance:"Centre commerçant le long de la Seine (Grande Rue), mixte, Manufacture.",verdict:"✅ Bon : transports N+T2, collège unique + lycée Vernant (référence)."},
+ {n:"Croix-Bosset / Monesse",lat:48.825,lng:2.205,note:7.5,college:"Collège de Sèvres (unique)",ecoles:"École Croix-Bosset (~350 él.)",prix:"~5 480–5 680 €/m²",transport:"bus vers gare RG / T2 (un peu en hauteur)",ambiance:"Résidentiel sur les hauteurs, pavillons et petits collectifs, familial.",verdict:"✅ Familial et calme, école Croix-Bosset, même collège."},
+ {n:"Brimborion",lat:48.829,lng:2.220,note:7.5,college:"Collège de Sèvres (unique)",ecoles:"rattachement centre/Gambetta",prix:"~5 840 €/m²",transport:"⭐ T2 Brimborion (La Défense / Porte de Versailles direct)",ambiance:"Bas de Sèvres côté Seine et parc de Brimborion, vues, mixte.",verdict:"🟢 Très bien relié (T2). Collège unique de Sèvres."},
+ {n:"Les Bruyères",lat:48.818,lng:2.198,note:7,college:"Collège de Sèvres (unique)",ecoles:"secteur Bruyères / Gambetta",prix:"~5 280 €/m²",transport:"bus ; proche frontière Chaville/Ville-d'Avray",ambiance:"Résidentiel verdoyant, proche forêt/lisière, calme pavillonnaire.",verdict:"🟢 Le plus accessible de Sèvres, cadre vert."},
+ {n:"Monesse / Gabriel Péri",lat:48.820,lng:2.207,note:7,college:"Collège de Sèvres (unique)",ecoles:"Croix-Bosset / Gambetta selon rue",prix:"~5 680 €/m²",transport:"bus vers gare RG / T2",ambiance:"Résidentiel intermédiaire, mixte collectif/pavillonnaire.",verdict:"🟢 Correct, même collège + lycée Vernant."}
+]},
+{name:"Ville-d'Avray",score:7.39,code:"92077",r:300,
+ stations:[{n:"Transilien L Sèvres-Ville-d'Avray",lat:48.8240,lng:2.1980,m:"Train"}],
+ quartiers:[
+ {n:"Centre",lat:48.825,lng:2.193,note:8,college:"La Fontaine du Roy (~94% brevet) → lycée Vernant",ecoles:"groupe scolaire du centre",prix:"appart ~5 290, maison ~8 190 €/m²",transport:"Transilien L Sèvres-Ville-d'Avray (Saint-Lazare / La Défense)",ambiance:"Bourg résidentiel cossu, maisons, calme, cadre verdoyant.",verdict:"✅ Excellent collège unique (94%), cadre cossu. Desserte L seule."},
+ {n:"Étangs de Corot / La Ronce",lat:48.832,lng:2.185,note:8,college:"La Fontaine du Roy (~94% brevet)",ecoles:"La Ronce + Jean Rostand (~408 él.)",prix:"maisons recherchées >8 000 €/m²",transport:"bus vers gare Sèvres-Ville-d'Avray / La Défense / Saint-Cloud",ambiance:"Très prisé, lisière de forêt et étangs de Corot, vues, haut de gamme.",verdict:"✅ Cadre nature exceptionnel + bon collège. Plus loin de la gare."},
+ {n:"Le Cœur Volant",lat:48.818,lng:2.188,note:7.5,college:"La Fontaine du Roy (~94% brevet)",ecoles:"rattachement centre/La Ronce selon rue",prix:"proche moyenne ville (~5 440 €/m²)",transport:"bus vers gare ; proche axes Sèvres/Chaville",ambiance:"Résidentiel/pavillonnaire en limite de Sèvres et de la forêt, calme.",verdict:"🟢 Calme et vert, même collège (La Fontaine du Roy)."}
+]},
+{name:"Issy-les-Moulineaux",score:7.73,code:"92040",r:330,
+ stations:[{n:"M12 Mairie d'Issy",lat:48.8243,lng:2.2728,m:"Métro"},{n:"M12 Corentin Celton",lat:48.8270,lng:2.2820,m:"Métro"},{n:"T2 Issy-Val de Seine",lat:48.8316,lng:2.2585,m:"Tram"},{n:"RER C Issy",lat:48.8245,lng:2.2705,m:"RER"}],
+ quartiers:[
+ {n:"Centre-Ville / Mairie",lat:48.8240,lng:2.2730,note:8,college:"Victor Hugo ou Georges Mandel selon rue",ecoles:"Voltaire, Paul-Bert, La Fontaine",prix:"~7 800 €/m²",transport:"M12 Mairie d'Issy / Corentin Celton (~12 min Montparnasse) + RER C",ambiance:"Cœur historique commerçant, mix haussmannien/collectif récent, bourgeois-familial.",verdict:"✅ Central et bien desservi, collèges publics corrects. Cher."},
+ {n:"Corentin Celton",lat:48.8270,lng:2.2810,note:8,college:"Georges Mandel (proche)",ecoles:"Voltaire, Jean-de-La-Fontaine",prix:"~9 000 €/m² (micro-secteur premium)",transport:"M12 Corentin Celton (~10 min Montparnasse, très direct)",ambiance:"Urbain dense autour de l'hôpital, très connecté, actifs + familles.",verdict:"✅ Le mieux connecté à Paris. Premium."},
+ {n:"Val de Seine / Bords de Seine",lat:48.8320,lng:2.2560,note:7.5,college:"Victor Hugo (à vérifier)",ecoles:"Bords de Seine, Françoise-Giroud (récentes)",prix:"~7 966 €/m² (le + cher)",transport:"T2 (La Défense) + RER C · Ligne 15 Sud fin 2026 (gare Issy)",ambiance:"Front de Seine, quartier d'affaires + résidentiel neuf haut de gamme, berges.",verdict:"✅ Neuf et valorisé par la ligne 15. Écoles modernes."},
+ {n:"Les Hauts d'Issy / Fort d'Issy",lat:48.8200,lng:2.2560,note:7.5,college:"Henri Matisse (CHAM) à vérifier",ecoles:"Les Chartreux, écoles du Fort (neuves)",prix:"~7 923 €/m²",transport:"pas de métro direct (point faible) ; bus vers M12/T2",ambiance:"Éco-quartier Fort d'Issy, résidences neuves BBC, familial, vert et calme.",verdict:"✅ Familial et vert, écoles neuves, mais métro éloigné."},
+ {n:"Les Îles (Île Saint-Germain)",lat:48.8285,lng:2.2650,note:7,college:"Victor Hugo / Mandel selon secteur",ecoles:"Les Îles, Saint-Germain",prix:"~7 826 €/m²",transport:"T2 / RER C à proximité (pont)",ambiance:"Île sur la Seine, mi-résidentiel récent, mi-parc départemental, cadre aéré.",verdict:"🟢 Cadre vert original, un peu à part."},
+ {n:"Les Varennes",lat:48.8230,lng:2.2770,note:7,college:"Georges Mandel",ecoles:"Voltaire, Saint-Exupéry",prix:"~7 627 €/m²",transport:"proche M12 Corentin Celton / Mairie d'Issy",ambiance:"Est (vers Vanves), résidentiel mixte, plus calme, bon compromis prix.",verdict:"🟢 Bon compromis, proche métro."},
+ {n:"Les Épinettes",lat:48.8190,lng:2.2620,note:6.5,college:"Henri Matisse / Mandel selon secteur",ecoles:"Les Épinettes",prix:"~7 412 €/m²",transport:"bus vers M12, plus excentré",ambiance:"Sud (limite Clamart/Meudon), résidentiel plus modeste, logement social en partie.",verdict:"🟡 Plus abordable, vérifier l'école/collège."},
+ {n:"La Ferme",lat:48.8210,lng:2.2700,note:6,college:"Victor Hugo / Mandel",ecoles:"Les Ajoncs, La Fontaine",prix:"~6 922 €/m² (le moins cher)",transport:"bus vers M12 Mairie d'Issy",ambiance:"Sud-central, le plus abordable, plus modeste, habitat social en partie.",verdict:"🟡 Le moins cher d'Issy, profil plus populaire."}
+]},
+{name:"Montrouge",score:7.27,code:"92049",r:300,
+ stations:[{n:"M4 Mairie de Montrouge",lat:48.8167,lng:2.3196,m:"Métro"},{n:"M4 Barbara",lat:48.8108,lng:2.3138,m:"Métro"},{n:"T3 Porte de Châtillon",lat:48.8268,lng:2.3060,m:"Tram"}],
+ quartiers:[
+ {n:"Portes de Montrouge / Centre",lat:48.8195,lng:2.3215,note:8,college:"Robert Doisneau (nord, ~95% brevet)",ecoles:"Aristide-Briand, Renaudel A/B",prix:"~8 000–8 800 €/m²",transport:"M4 Mairie de Montrouge (~5 min Montparnasse, ~13 min Châtelet) + T3",ambiance:"Entrée nord, frontière Paris 14e, le plus urbain, dynamique et commerçant.",verdict:"✅ Le pari sûr : secteur collège Doisneau + M4 direct. À vérifier à l'adresse."},
+ {n:"Vieux Montrouge",lat:48.8150,lng:2.3140,note:7.5,college:"Doisneau ou Genevoix (charnière) — à vérifier",ecoles:"Pierre-Brossolette, Aristide-Briand",prix:"~8 200 €/m²",transport:"M4 ~10 min à pied, T3 Porte de Châtillon",ambiance:"Esprit village, rues calmes, ancien + rares maisons de ville, espaces verts.",verdict:"✅ Le plus résidentiel/familial, mais secteur collège à confirmer (charnière)."},
+ {n:"Montrouge Est / Vache Noire",lat:48.8180,lng:2.3260,note:7,college:"Doisneau ou Genevoix selon position",ecoles:"Renaudel, Briand selon secteur",prix:"~8 100 €/m²",transport:"M4 Barbara 7-10 min, pôle commercial La Vache Noire",ambiance:"Calme et résidentiel, beaucoup d'espaces verts (squares), zones 30.",verdict:"🟢 Calme et vert. Secteur collège mixte à vérifier."},
+ {n:"Village Jean Jaurès",lat:48.8120,lng:2.3120,note:6.5,college:"Maurice Genevoix (sud)",ecoles:"secteur Jean-Jaurès/Ferry (Briand, Boileau)",prix:"~8 000 €/m²",transport:"M4 Barbara ~5 min (→ Montparnasse direct)",ambiance:"Allée Jean-Jaurès arborée, convivial, vie de quartier ; éco-quartier Halles à venir.",verdict:"🟡 Vivant et familial, mais secteur collège Genevoix (moins coté)."},
+ {n:"Plein Sud",lat:48.8095,lng:2.3160,note:6.5,college:"Maurice Genevoix (sud)",ecoles:"Henri-Wallon, Brossolette",prix:"~7 900 €/m²",transport:"T3 Porte de Châtillon 5 min, proche Châtillon-Montrouge (M13 + L15)",ambiance:"Sud, résidences récentes, plus dégagé, prix plus accessibles.",verdict:"🟡 Plus accessible, secteur Genevoix."},
+ {n:"Ferry-Buffalo",lat:48.8150,lng:2.3050,note:6.5,college:"selon adresse (ouest, possible Genevoix)",ecoles:"Buffalo, Rabelais",prix:"~7 800 €/m² (le + abordable)",transport:"T3 Porte de Châtillon 7 min, proche Châtillon-Montrouge",ambiance:"Ouest (limite Châtillon/Bagneux), en mutation, potentiel de valorisation.",verdict:"🟡 Le plus abordable, en essor. Vérifier le collège."}
+]},
+{name:"Chaville",score:7.13,code:"92022",r:320,
+ stations:[{n:"Chaville-Rive-Gauche (N)",lat:48.8065,lng:2.1875,m:"Train"},{n:"Chaville-Rive-Droite (L/U)",lat:48.8095,lng:2.1885,m:"Train"}],
+ quartiers:[
+ {n:"Centre / Rive Gauche",lat:48.806,lng:2.190,note:7.5,college:"Jean Moulin (unique)",ecoles:"Ferdinand Buisson, Anatole France",prix:"~7 200 €/m² (place du Marché)",transport:"Chaville-Rive-Gauche (N) ~18 min Montparnasse",ambiance:"Cœur commerçant, marché, le plus animé et dense.",verdict:"✅ Central, collège unique Jean Moulin (IPS 131). Le plus cher."},
+ {n:"Atrium (Rive Droite)",lat:48.810,lng:2.189,note:7.5,college:"Jean Moulin (unique)",ecoles:"Paul Bert (section internationale)",prix:"~5 300–5 700 €/m²",transport:"Chaville-Rive-Droite (L/U) → Saint-Lazare ~25 min / La Défense ~10-12 min",ambiance:"Pôle culturel (théâtre/cinéma, médiathèque), résidentiel récent.",verdict:"✅ Atout La Défense (ligne U) + culture. Collège Jean Moulin."},
+ {n:"Doisu",lat:48.809,lng:2.195,note:7,college:"Jean Moulin (unique)",ecoles:"Anatole France / Ferdinand Buisson selon rue",prix:"~5 300–5 800 €/m²",transport:"entre les deux gares (N et L/U)",ambiance:"Quartier historique, charme ancien, résidentiel.",verdict:"🟢 Charmant, double accès gares."},
+ {n:"Ursine (Sud)",lat:48.798,lng:2.193,note:7,college:"Jean Moulin (unique)",ecoles:"secteur Paul Bert (sud)",prix:"maisons recherchées, appart ~4 600–5 000 €/m²",transport:"plus éloigné des gares, voiture/bus utiles",ambiance:"Sud, majorité de maisons, lisière de forêt de Meudon (étangs), très vert.",verdict:"🟢 Maisons au vert. Transports moins directs."},
+ {n:"Brise du Parc",lat:48.800,lng:2.203,note:6.5,college:"Jean Moulin (unique)",ecoles:"Paul Bert secteur sud",prix:"programmes récents (moyenne haute)",transport:"proche Chaville-Vélizy, dépendance voiture",ambiance:"Résidentiel récent en lisière de forêt côté Vélizy, calme et vert.",verdict:"🟡 Neuf et vert mais transports plus contraignants."}
+]},
+{name:"Suresnes",score:7.28,code:"92073",r:360,
+ stations:[{n:"T2 Suresnes-Longchamp",lat:48.8693,lng:2.2289,m:"Tram"},{n:"T2 Belvédère",lat:48.8645,lng:2.2330,m:"Tram"},{n:"Transilien L Suresnes-Mont-Valérien",lat:48.8730,lng:2.2200,m:"Train"}],
+ quartiers:[
+ {n:"République / Plateau Ouest",lat:48.865,lng:2.230,note:7.5,college:"Émile Zola / Hubert Germain selon rue",ecoles:"République, Robert Pontillon",prix:"élevé (maisons recherchées)",transport:"T2 Belvédère / Les Coteaux → La Défense ~5-7 min",ambiance:"Pavillonnaire prisé, parc du Château, écoles réputées, familial.",verdict:"✅ Recherché : maisons, écoles, La Défense en 7 min."},
+ {n:"Centre-Ville",lat:48.871,lng:2.227,note:7.5,college:"Henri Sellier ou Émile Zola selon rue",ecoles:"Édouard Vaillant, Wilson",prix:"~6 200–6 800 €/m²",transport:"T2 Suresnes-Longchamp → La Défense ~7 min",ambiance:"Cœur commerçant et administratif (mairie, marché Caron), animé.",verdict:"✅ Pratique et bien desservi. Vérifier le collège."},
+ {n:"Mont-Valérien",lat:48.877,lng:2.215,note:7.5,college:"Émile Zola (probable)",ecoles:"écoles des coteaux (Saint-Exupéry)",prix:"haut de fourchette (maisons jusqu'à ~12 000 €/m²)",transport:"gare Suresnes-Mont-Valérien (L/U) → La Défense direct",ambiance:"Le plus calme et résidentiel, point haut, vue panoramique, beaux pavillons.",verdict:"✅ Familles aisées, calme et vues. Cher sur les belles rues."},
+ {n:"Écluse-Belvédère",lat:48.860,lng:2.232,note:7,college:"Jean Macé / Hubert Germain (probable)",ecoles:"écoles proches des quais",prix:"programmes récents souvent > moyenne",transport:"T2 Belvédère → La Défense ~7 min",ambiance:"Front de Seine en renouvellement, immeubles récents, vues sur le fleuve.",verdict:"🟢 Neuf en bord de Seine, très bien relié."},
+ {n:"Liberté",lat:48.866,lng:2.225,note:7,college:"Émile Zola ou Henri Sellier",ecoles:"Henri Dunant, Simone Veil",prix:"~moyenne ville (~6 400 €/m²)",transport:"accès T2 / bus, proche centre",ambiance:"Résidentiel intermédiaire, mixte collectif + maisons.",verdict:"🟢 Correct, central. Vérifier le collège."},
+ {n:"Cité-Jardins",lat:48.873,lng:2.218,note:5.5,college:"Henri Sellier (IPS ~103, plus modeste)",ecoles:"Les Raguidelles",prix:"~4 235 €/m² (le moins cher)",transport:"plateau, bus vers T2 et gare Mont-Valérien",ambiance:"Cité-jardins patrimoniale (1921), ~93% locataires, populaire et vivant.",verdict:"🟠 Le plus abordable, mais collège Sellier plus fragile."}
+]},
+{name:"Rueil-Malmaison",score:7.67,code:"92063",r:520,
+ stations:[{n:"RER A Rueil-Malmaison",lat:48.8775,lng:2.1880,m:"RER"}],
+ quartiers:[
+ {n:"Plaine-Gare",lat:48.884,lng:2.197,note:8,college:"Jules Verne / La Malmaison (à confirmer)",ecoles:"Tuck-Stell A/B",prix:"~5 910 €/m²",transport:"RER A sur place → La Défense ~8 min, Châtelet ~18 min",ambiance:"Quartier de la gare, programmes neufs, pratique pour les actifs.",verdict:"✅ Le mieux placé : RER A immédiat, La Défense en 8 min."},
+ {n:"Centre-Ville",lat:48.877,lng:2.190,note:8,college:"Henri Dunant ou La Malmaison selon rue",ecoles:"Jules Ferry, Robespierre A/B",prix:"~6 000–6 500 €/m² (le + cher)",transport:"~10-15 min à pied/bus de la gare RER A",ambiance:"Cœur historique commerçant, marché, parc de Bois-Préau, bourgeois-familial.",verdict:"✅ Le plus recherché. Bonne offre d'écoles, à 8 min de la gare."},
+ {n:"Mont-Valérien / Arsenal",lat:48.880,lng:2.215,note:7.5,college:"Marcel Pagnol / Les Martinets (à confirmer)",ecoles:"écoles de l'Arsenal",prix:"~5 600–6 000 €/m²",transport:"bus aujourd'hui ; future gare Grand Paris Express ligne 15",ambiance:"Écoquartier de l'Arsenal, calme, qualité de vie, fort potentiel (GPE).",verdict:"✅ Pari d'avenir avec la ligne 15. Calme et familial."},
+ {n:"Rueil-sur-Seine / Bords de Seine",lat:48.895,lng:2.190,note:7,college:"à confirmer",ecoles:"secteur nord",prix:"~5 800–6 000 €/m²",transport:"plus éloigné de la gare RER A (bus)",ambiance:"Front de Seine, écoquartier/programmes récents, cadre aéré près de l'eau.",verdict:"🟢 Cadre Seine et neuf, mais plus loin du RER."},
+ {n:"Plateau / Mazurières / Godardes",lat:48.863,lng:2.179,note:6.5,college:"Marcel Pagnol (probable)",ecoles:"Les Trianons, Les Bons-Raisins, Louis Pasteur",prix:"~5 600–6 000 €/m²",transport:"éloigné du RER A → bus, trajet plus long",ambiance:"Anciennes vignes, mix pavillons + collectif, marché des Godardes, vie de quartier.",verdict:"🟡 Vie de quartier agréable, mais loin du RER."},
+ {n:"Buzenval",lat:48.857,lng:2.166,note:6.5,college:"à confirmer · privé La Salle Passy-Buzenval réputé",ecoles:"proximité La Salle Passy-Buzenval (privé)",prix:"~5 942 €/m²",transport:"loin du RER A → bus indispensable",ambiance:"Caractère rural préservé, fermes historiques, calme et verdure, pavillonnaire.",verdict:"🟡 Très vert et familial, mais le plus pénalisant côté transport."}
+]},
+{name:"Verrières-le-Buisson",score:6.91,code:"91645",r:380,
+ stations:[{n:"RER B Massy-Verrières",lat:48.7345,lng:2.2630,m:"RER"},{n:"RER B Antony",lat:48.7545,lng:2.2990,m:"RER"}],
+ quartiers:[
+ {n:"Centre-Village",lat:48.748,lng:2.262,note:7,college:"Jean Moulin (unique, ~93% mention)",ecoles:"David Régnier-Paul Fort, Honoré d'Estienne d'Orves",prix:"~4 700–5 200 €/m²",transport:"bus 196 → RER B Massy-Verrières/Antony (~27 min Paris)",ambiance:"Cœur historique, commerces, marché, parcs ; village bourgeois et familial.",verdict:"✅ Excellent collège unique + cadre village. Transport en bus (point faible)."},
+ {n:"Bois de Verrières",lat:48.755,lng:2.273,note:7,college:"Jean Moulin (unique)",ecoles:"selon secteur",prix:"maisons, fourchette haute (>5 500 €/m²)",transport:"éloigné des RER → voiture/bus, trajet plus long",ambiance:"Pavillonnaire haut de gamme en lisière de forêt domaniale, très calme et vert.",verdict:"🟢 Maisons au vert, collège excellent. Transports contraignants."},
+ {n:"La Plante aux Loups / Vallée-aux-Loups",lat:48.745,lng:2.270,note:6.5,college:"Jean Moulin (unique)",ecoles:"secteur sud",prix:"proche moyenne ville (~4 700 €/m²)",transport:"bus vers Antony RER B",ambiance:"Résidentiel proche du domaine de la Vallée-aux-Loups (arboretum), verdoyant.",verdict:"🟢 Cadre patrimonial vert, même collège."},
+ {n:"Les Prés Hauts",lat:48.752,lng:2.255,note:6.5,college:"Jean Moulin (unique)",ecoles:"secteur ouest",prix:"légèrement sous la moyenne (collectif)",transport:"bus vers Massy-Verrières / Antony",ambiance:"Secteurs périphériques, mix pavillons/collectif récent, parcs à proximité.",verdict:"🟢 Un peu plus abordable, collège excellent. Bus uniquement."}
+]}
+];
+</script>
+<script>
+let bienType='';
+function slugify(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/['’]/g,'-').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+function openSeloger(deal){ // deal: 'achat' | 'locations'
+  if(!current)return;
+  const dept=current.code.slice(0,2);
+  const slug=slugify(current.name);
+  const url=`https://www.seloger.com/immobilier/${deal}/immo-${slug}-${dept}/`;
+  window.open(url,'_blank','noopener');
+}
+function wireSeloger(){
+  const rent=document.getElementById('sbRent'),buy=document.getElementById('sbBuy');
+  if(rent)rent.onclick=()=>openSeloger('locations');
+  if(buy)buy.onclick=()=>openSeloger('achat');
+}
+function colorOf(v){if(v>=8.2)return'#16a34a';if(v>=7.2)return'#65b30d';if(v>=6)return'#eab308';if(v>=4.5)return'#f97316';return'#ef4444';}
+function deptName(code){const d=code.slice(0,2);return d==='94'?'Val-de-Marne':d==='91'?'Essonne':d==='78'?'Yvelines':d==='93'?'Seine-Saint-Denis':d==='95'?'Val-d\'Oise':d==='77'?'Seine-et-Marne':d==='75'?'Paris':'Hauts-de-Seine';}
+function scoreBg(v){if(v>=8.2)return['#dcfce7','#15803d'];if(v>=7.2)return['#ecfccb','#4d7c0f'];if(v>=6)return['#fef9c3','#a16207'];if(v>=4.5)return['#ffedd5','#c2410c'];return['#fee2e2','#b91c1c'];}
+function dist2(a,b,c,d){const dx=a-c,dy=b-d;return dx*dx+dy*dy;}
+function nearestQ(lat,lng,qs){let best=qs[0],bd=1e9;qs.forEach(q=>{const d=dist2(lat,lng,q.lat,q.lng);if(d<bd){bd=d;best=q;}});return best;}
+function centroid(g){let cs=g.type==='Polygon'?g.coordinates[0]:g.coordinates[0][0];let x=0,y=0;cs.forEach(p=>{x+=p[0];y+=p[1];});return[y/cs.length,x/cs.length];}
+
+cities.forEach(c=>{
+  const lats=c.quartiers.map(q=>q.lat),lngs=c.quartiers.map(q=>q.lng);
+  const minLat=Math.min(...lats),maxLat=Math.max(...lats),minLng=Math.min(...lngs),maxLng=Math.max(...lngs);
+  const dLat=Math.max(maxLat-minLat,0.012),dLng=Math.max(maxLng-minLng,0.012);
+  c.center=[(minLat+maxLat)/2,(minLng+maxLng)/2];
+  c.bnum=[[minLat-0.3*dLat,minLng-0.3*dLng],[maxLat+0.3*dLat,maxLng+0.3*dLng]];
+  c.qsorted=[...c.quartiers].sort((a,b)=>b.note-a.note);
+});
+const _la=cities.map(c=>c.center[0]),_lo=cities.map(c=>c.center[1]);
+const ALLB=[[Math.min(..._la)-0.03,Math.min(..._lo)-0.03],[Math.max(..._la)+0.03,Math.max(..._lo)+0.03]];
+
+let map=null,mapOk=false,cityMarkers=[],current=null,activeQ=null;
+let irisLayer,schoolLayer,stationLayer,circleLayer;
+const cache={iris:{},schools:{}};
+try{
+  map=L.map('map',{scrollWheelZoom:true,zoomControl:true});
+  const tiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19,attribution:'© OpenStreetMap © CARTO'});
+  tiles.on('tileerror',()=>{document.getElementById('fallback').style.display='block';});
+  tiles.addTo(map);
+  setTimeout(()=>{if(!document.querySelector('.leaflet-tile-loaded'))document.getElementById('fallback').style.display='block';},3500);
+  irisLayer=L.layerGroup();schoolLayer=L.layerGroup();stationLayer=L.layerGroup();circleLayer=L.layerGroup();
+  map.fitBounds(ALLB);
+  mapOk=true;
+}catch(e){document.getElementById('fallback').style.display='block';}
+
+// ---------- SIDEBAR LIST ----------
+const citylist=document.getElementById('citylist');
+document.getElementById('cityCount').textContent=cities.length;
+function renderCities(filter=''){
+  citylist.innerHTML='';
+  cities.filter(c=>c.name.toLowerCase().includes(filter.toLowerCase())).forEach((c)=>{
+    const rank=cities.indexOf(c)+1;const[bg,fg]=scoreBg(c.score);
+    const el=document.createElement('div');el.className='crow'+(current===c?' on':'');el.dataset.city=c.name;
+    el.innerHTML=`<div class="crank" style="background:${colorOf(c.score)}">${rank}</div>
+      <div class="cinfo"><div class="cn">${c.name}</div><div class="csub">${c.dept||c.quartiers[0].college?'':''}${citySub(c)}</div></div>
+      <div class="cscore" style="background:${bg};color:${fg}">${c.score.toFixed(2)}</div>`;
+    el.onclick=()=>selectCity(c);
+    citylist.appendChild(el);
+  });
+}
+function citySub(c){
+  return `${deptName(c.code)} · ${c.quartiers.length} quartiers`;
+}
+
+// ---------- RIGHT PANEL ----------
+const rscroll=document.getElementById('rscroll');
+function cityHeaderHTML(c){
+  const dep=`${c.code.slice(0,2)} · ${deptName(c.code)}`;
+  const greens=c.quartiers.filter(q=>q.note>=7.2).length;
+  const slug=slugify(c.name);
+  const gallery=[1,2,3,4].map(i=>`<img loading="lazy" src="https://picsum.photos/seed/${slug}${i}/320/220" alt="${c.name}">`).join('');
+  return `<div class="cityhdr" style="background-image:linear-gradient(180deg,rgba(8,12,18,.12),rgba(8,12,18,.82)),url('https://picsum.photos/seed/${slug}/700/240')">
+      <div class="ch-meta"><div class="ch-name">${c.name}</div><div class="ch-dep">${dep}</div></div>
+      <div class="ch-score" style="background:${colorOf(c.score)}">${c.score.toFixed(2)}<small>/10</small></div>
+    </div>
+    <div class="rbody">
+    <div class="metrics">
+      <div class="metric"><div class="v">${c.quartiers.length}</div><div class="l">Quartiers</div></div>
+      <div class="metric"><div class="v" style="color:var(--accent)">${greens}</div><div class="l">À privilégier</div></div>
+      <div class="metric"><div class="v" id="mSchools">·</div><div class="l">Écoles</div></div>
+    </div>
+    <div class="searchbien">
+      <div class="sb-title"><img class="sb-ico" src="https://www.seloger.com/favicon.ico" alt="SeLoger" onerror="this.style.display='none'">Recherche sur SeLoger</div>
+      <div class="sb-actions">
+        <button class="sb-btn" id="sbRent">🔑 Louer</button>
+        <button class="sb-btn" id="sbBuy">🏠 Acheter</button>
+      </div>
+    </div>
+    <div class="rsection"><span>Détail quartier</span><span id="qhint">survol</span></div>
+    <div id="qdetail"><div class="qverdict">Survole un quartier (carte ou liste) pour voir collège de secteur, écoles, prix, transport, ambiance et verdict.</div></div>
+    <div class="rsection"><span>Tous les quartiers</span><span>${c.quartiers.length}</span></div>
+    <div class="qlist" id="qlist"></div>
+    <div class="legend">
+      <span><span class="dot" style="background:#16a34a"></span>Privilégier</span>
+      <span><span class="dot" style="background:#eab308"></span>Arbitrer</span>
+      <span><span class="dot" style="background:#ef4444"></span>Éviter</span>
+    </div>
+    <div class="rsection" style="margin-top:18px"><span>Galerie</span><span>${c.name}</span></div>
+    <div class="gallery">${gallery}</div>
+    </div>`;
+}
+function qDetailHTML(q,irisName){
+  const col=colorOf(q.note);
+  return `<div class="qdetail">
+    <div class="qtop"><span class="qpill" style="background:${col}">${q.note.toFixed(1)}</span><h3>${q.n}</h3></div>
+    ${irisName?`<div class="qiris">Zone IRIS : ${irisName}</div>`:'<div class="qiris"></div>'}
+    <div class="qrow"><div class="k">🎓 Collège de secteur</div>${q.college}</div>
+    <div class="qrow"><div class="k">🏫 Écoles élémentaires</div>${q.ecoles}</div>
+    <div class="qrow"><div class="k">🏠 Prix</div>${q.prix}</div>
+    <div class="qrow"><div class="k">🚆 Transport</div>${q.transport}</div>
+    <div class="qrow"><div class="k">🏘️ Ambiance</div>${q.ambiance}</div>
+    <div class="qverdict">${q.verdict}</div></div>`;
+}
+function renderQList(c){
+  const ql=document.getElementById('qlist');if(!ql)return;ql.innerHTML='';
+  c.qsorted.forEach(q=>{
+    const el=document.createElement('div');el.className='qitem';el.dataset.q=q.n;
+    el.innerHTML=`<span class="qdot" style="background:${colorOf(q.note)}"></span><span class="qn">${q.n}</span><span class="qv">${q.note.toFixed(1)}</span>`;
+    el.addEventListener('mouseenter',()=>focusQuartier(q,c,null,false));
+    el.addEventListener('click',()=>focusQuartier(q,c,null,true));
+    ql.appendChild(el);
+  });
+}
+function focusQuartier(q,c,irisName,zoom){
+  activeQ=q;
+  const d=document.getElementById('qdetail');if(d)d.innerHTML=qDetailHTML(q,irisName);
+  document.querySelectorAll('.qitem').forEach(x=>x.classList.toggle('on',x.dataset.q===q.n));
+  if(zoom&&mapOk)map.flyTo([q.lat,q.lng],15,{duration:.5});
+}
+
+// ---------- MAP LAYERS ----------
+function drawCircles(c){
+  if(!mapOk)return;
+  circleLayer.clearLayers();
+  c.quartiers.forEach(q=>{
+    const circ=L.circle([q.lat,q.lng],{radius:c.r,color:'#fff',weight:1.5,fillColor:colorOf(q.note),fillOpacity:.55});
+    circ.bindTooltip(q.n.split(' / ')[0].split(' – ')[0],{permanent:true,direction:'center',className:'qlabel'});
+    circ.on('mouseover',()=>{circ.setStyle({fillOpacity:.8,weight:2.5});focusQuartier(q,c,null,false);});
+    circ.on('click',()=>focusQuartier(q,c,null,true));
+    circ.addTo(circleLayer);
+  });
+}
+async function loadIris(c){
+  if(!mapOk)return;
+  irisLayer.clearLayers();
+  if(cache.iris[c.code]===undefined){
+    try{const url=`https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/georef-france-iris/records?where=com_code%3D%22${c.code}%22&limit=100&select=iris_name,geo_shape`;
+      const r=await fetch(url);const j=await r.json();
+      cache.iris[c.code]=(j.results||[]).filter(x=>x.geo_shape&&x.geo_shape.geometry);
+    }catch(e){cache.iris[c.code]=null;}
+  }
+  const rows=cache.iris[c.code];
+  if(!rows||!rows.length){drawCircles(c);return;}
+  rows.forEach(row=>{
+    const name=(row.iris_name&&row.iris_name[0])||'';
+    const cen=centroid(row.geo_shape.geometry);const q=nearestQ(cen[0],cen[1],c.quartiers);
+    const poly=L.geoJSON({type:'Feature',geometry:row.geo_shape.geometry},{style:{color:'#fff',weight:1.2,fillColor:colorOf(q.note),fillOpacity:.5}});
+    poly.bindTooltip(q.n.split(' / ')[0].split(' – ')[0],{permanent:true,direction:'center',className:'qlabel'});
+    poly.on('mouseover',()=>{poly.setStyle({fillOpacity:.78,weight:2.5});focusQuartier(q,c,name,false);});
+    poly.on('mouseout',()=>poly.setStyle({fillOpacity:.5,weight:1.2}));
+    poly.on('click',()=>focusQuartier(q,c,name,true));
+    poly.addTo(irisLayer);
+  });
+}
+async function loadSchools(c){
+  if(!mapOk)return;
+  schoolLayer.clearLayers();
+  if(cache.schools[c.code]===undefined){
+    try{const url=`https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education/records?where=code_commune%3D%22${c.code}%22&limit=100&select=nom_etablissement,type_etablissement,latitude,longitude,statut_public_prive`;
+      const r=await fetch(url);const j=await r.json();
+      cache.schools[c.code]=(j.results||[]).filter(x=>x.latitude&&x.longitude&&['Ecole','Collège','Lycée'].includes(x.type_etablissement));
+    }catch(e){cache.schools[c.code]=null;}
+  }
+  const rows=cache.schools[c.code]||[];
+  const col={'Ecole':'#3b82f6','Collège':'#8b5cf6','Lycée':'#ec4899'};
+  rows.forEach(s=>{
+    const m=L.circleMarker([s.latitude,s.longitude],{radius:5,color:'#fff',weight:1.5,fillColor:col[s.type_etablissement]||'#888',fillOpacity:1});
+    m.bindTooltip(`${s.nom_etablissement}${s.statut_public_prive?' ('+s.statut_public_prive+')':''}`,{direction:'top'});
+    m.addTo(schoolLayer);
+  });
+  const ms=document.getElementById('mSchools');if(ms)ms.textContent=rows.length||'·';
+}
+function loadStations(c){
+  if(!mapOk)return;
+  stationLayer.clearLayers();
+  const col={'RER':'#2563eb','Métro':'#f59e0b','Tram':'#0ea5e9','Train':'#7c3aed'};
+  (c.stations||[]).forEach(s=>{
+    const m=L.marker([s.lat,s.lng],{icon:L.divIcon({className:'',html:`<div style="background:${col[s.m]||'#333'};width:14px;height:14px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,iconSize:[14,14],iconAnchor:[7,7]})});
+    m.bindTooltip(s.n,{direction:'top',className:'stlabel'});
+    m.addTo(stationLayer);
+  });
+}
+function applyToggles(){
+  if(!mapOk)return;
+  const i=document.getElementById('tgIris').classList.contains('on');
+  const s=document.getElementById('tgSchools').classList.contains('on');
+  const t=document.getElementById('tgStations').classList.contains('on');
+  if(i){irisLayer.addTo(map);circleLayer.addTo(map);}else{map.removeLayer(irisLayer);map.removeLayer(circleLayer);}
+  if(s)schoolLayer.addTo(map);else map.removeLayer(schoolLayer);
+  if(t)stationLayer.addTo(map);else map.removeLayer(stationLayer);
+}
+['tgIris','tgSchools','tgStations'].forEach(id=>document.getElementById(id).addEventListener('click',()=>{document.getElementById(id).classList.toggle('on');applyToggles();}));
+
+// ---------- SELECTION ----------
+async function selectCity(c){
+  current=c;activeQ=null;
+  document.querySelectorAll('.crow').forEach(x=>x.classList.toggle('on',x.dataset.city===c.name));
+  const dep=`${deptName(c.code)} (${c.code.slice(0,2)})`;
+  document.getElementById('cName').textContent=c.name;
+  document.getElementById('cStatus').innerHTML=`<span class="led"></span>Score ${c.score.toFixed(2)}/10`;
+  document.getElementById('cSub').textContent='· '+dep;
+  bienType='';
+  rscroll.innerHTML=cityHeaderHTML(c);
+  renderQList(c);
+  wireSeloger();
+  document.getElementById('right').classList.add('show');
+  if(!mapOk){return;}
+  setTimeout(()=>map.invalidateSize(),60);
+  cityMarkers.forEach(m=>map.removeLayer(m));
+  document.getElementById('loading').style.display='block';
+  map.flyToBounds(c.bnum,{duration:.7});
+  loadStations(c);applyToggles();
+  await Promise.all([loadIris(c),loadSchools(c)]);
+  applyToggles();
+  document.getElementById('loading').style.display='none';
+}
+function showOverview(){
+  current=null;activeQ=null;
+  document.getElementById('right').classList.remove('show');
+  document.querySelectorAll('.crow').forEach(x=>x.classList.remove('on'));
+  document.getElementById('cName').textContent='Vue d\'ensemble';
+  document.getElementById('cStatus').innerHTML='<span class="led"></span>'+cities.length+' villes';
+  document.getElementById('cSub').textContent='— choisis une ville';
+  if(!mapOk)return;
+  [irisLayer,schoolLayer,stationLayer,circleLayer].forEach(l=>{l.clearLayers();map.removeLayer(l);});
+  cityMarkers.forEach(m=>m.addTo(map));
+  setTimeout(()=>map.invalidateSize(),60);
+  map.flyToBounds(ALLB,{duration:.7});
+}
+document.getElementById('zoomOut').onclick=showOverview;
+document.getElementById('rclose').onclick=showOverview;
+document.getElementById('overviewBtn').onclick=showOverview;
+
+// city markers (overview)
+if(mapOk)cities.forEach((c,i)=>{
+  const m=L.circleMarker(c.center,{radius:13,color:'#fff',weight:2.5,fillColor:colorOf(c.score),fillOpacity:1});
+  m.addTo(map);
+  m.bindTooltip(`${i+1}. ${c.name.split('-')[0]} · ${c.score.toFixed(2)}`,{permanent:true,direction:'top',offset:[0,-10],className:'citylabel'});
+  m.on('click',()=>selectCity(c));
+  cityMarkers.push(m);
+});
+
+renderCities();
+</script>
+</body>
+</html>
