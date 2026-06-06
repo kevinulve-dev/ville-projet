@@ -212,7 +212,7 @@
           <button class="sb-btn" id="sbRent">🔑 Louer</button>
           <button class="sb-btn" id="sbBuy">🏠 Acheter</button>
         </div>
-        <div class="sb-note">Filtre : 2 ch. min · 60 m² min</div>
+        <div class="sb-note">Filtre : 2 ch. min · 60 m² · ≤ 2 200 €/mois ou ≤ 700 k€</div>
       </div>
       <button class="dlbtn" id="dlbtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Télécharger la synthèse</button>
     </div>
@@ -470,8 +470,9 @@ function slugify(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'
 function openSeloger(deal){ // deal: 'Buy' | 'Rent'
   if(!current)return;
   const code=SLID[current.name];
+  const price='&priceMax='+(deal==='Rent'?2200:700000);
   let url;
-  if(code){url=`https://www.seloger.com/classified-search?distributionTypes=${deal}&estateTypes=House,Apartment&locations=${code}${SELOGER_FILTERS}`;}
+  if(code){url=`https://www.seloger.com/classified-search?distributionTypes=${deal}&estateTypes=House,Apartment&locations=${code}${SELOGER_FILTERS}${price}`;}
   else{const dept=current.code.slice(0,2);url=`https://www.seloger.com/immobilier/${deal==='Rent'?'locations':'achat'}/immo-${slugify(current.name)}-${dept}/`;}
   window.open(url,'_blank','noopener');
 }
